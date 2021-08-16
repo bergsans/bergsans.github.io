@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <link href="styles/game.css" rel="stylesheet">
+  <link rel="icon" href="images/ui/favicon.png" type="image/" />
+  <meta charset="UTF-8">
+  <title>SPACE TANK</title>
+</head>
+
+<body>
+  <div id="test">
+    <div id="wrapper">
+      <div id="game-area">
+        <canvas width="750" height="750" id="game" tabindex="1">Your browser don't support canvas.</canvas>
+        <div id="player">
+          <p>HP: <span id="hp" style="color: indianred; font-size: 20px;"></span></p>
+          <p id="status-of-gun">CANON READY:</p>
+          <p>
+            <canvas id='gunstatus' width='125' height='30'></canvas>
+          </p>
+          <P id="ammo">AMMO:</P>
+          <p id="guns-and-ammo">125</p>
+          <br><br><br><br><br>
+          <p><strong style="color:cornflowerblue">INSTRUCTIONS</strong></p>
+          <p>fire: <span style="color:indianred">s</span></p>
+          <p>move: <span style="color:indianred">arrow keys</span></p>
+        </div>
+        <img src="images/ui/full_screen.png" id="fullscreen">
+        <img src="images/ui/try_again.png" id="reload">
+      </div>
+
+    </div>
+
+  </div>
+
+</body>
+<script src="source/index.js"></script>
+</body>
+
+</html>
