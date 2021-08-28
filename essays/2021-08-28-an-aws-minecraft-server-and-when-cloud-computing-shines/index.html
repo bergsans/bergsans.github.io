@@ -390,6 +390,18 @@ VISIT COUNT
 
 docker logs $ID | grep &quot;joined the game&quot; | cut -c 34- | \
 sort -nr | uniq -c | awk &#39;{print $2 &quot; has visited &quot; $1 &quot; times&quot;}&#39;</code></pre>
+
+outputting as an example,
+
+<pre><code>
+VISIT COUNT
+===========
+
+USER_1 has visited 5 times
+USER_2 has visited 2 times
+USER_3 has visited 1 times
+</code></pre>
+
 <p>The power of cloud computing comes from its ability to produce abstractions and declaratively tie them together in a way that allows reliability, flexibility, security and scalability.</p>
 <p>The principles behind cloud computing can be seen as an extension of the Unix philosophy through its focus on shared responsibility in and between individual “units”, which work well together in their individuality but also through composition work well together as a coherent system. “Code as infrastructure” is in fact just a variant and aspect of Unix philosophy’s slogan “text as a universal interface”.</p>
 <p>By working according to the principle code as infrastructure and allowing the possibility to declare connections, collaboration, scalability, etc. - all in text format - you not only have the opportunity for version control, you also get the opportunity to reproduce the same system on a large scale, and could also tie this, if needed, to domain-specific languages, etc.</p>
