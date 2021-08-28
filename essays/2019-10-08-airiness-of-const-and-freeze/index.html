@@ -449,6 +449,16 @@ console.log(arr[0].includes(2)); //true</code></pre>
     script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
     document.getElementsByTagName("head")[0].appendChild(script);
   })();
+  fetch(
+    `https://ng428h1mpj.execute-api.eu-central-1.amazonaws.com/dev/api/new-visit?url=${window.location.href}`,
+    {
+      method: 'GET',
+      mode: 'cors',
+    }
+  )
+  .then(r => r.json())
+  .then(console.log)
+  .catch(console.log);
 </script>
 
 </body>

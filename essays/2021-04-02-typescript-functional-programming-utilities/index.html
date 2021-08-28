@@ -1008,6 +1008,16 @@ const zip = &lt;T, U&gt;(list1: T[], list2: U[]): [T, U][] =&gt;
     script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
     document.getElementsByTagName("head")[0].appendChild(script);
   })();
+  fetch(
+    `https://ng428h1mpj.execute-api.eu-central-1.amazonaws.com/dev/api/new-visit?url=${window.location.href}`,
+    {
+      method: 'GET',
+      mode: 'cors',
+    }
+  )
+  .then(r => r.json())
+  .then(console.log)
+  .catch(console.log);
 </script>
 
 </body>
