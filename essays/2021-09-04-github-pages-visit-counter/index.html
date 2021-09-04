@@ -11,9 +11,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 
 
-<meta name="date" content="2018-11-27" />
+<meta name="date" content="2021-09-04" />
 
-<title>The Airiness of const and freeze</title>
+<title>GitHub Pages visit counter</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -326,109 +326,37 @@ if (window.hljs) {
 
 
 
-<h1 class="title toc-ignore">The Airiness of const and freeze</h1>
-<h3 class="subtitle">— is immutability possible in JavaScript?</h3>
-<h4 class="date">2019-10-08</h4>
+
+<h1 class="title toc-ignore">GitHub Pages visit counter</h1>
+<h4 class="date">2021-09-04</h4>
 
 
 
-<p>In JavaScript, almost all value assignments that are solid can melt into air. Only the primitive types of JavaScript are truly immutable.</p>
-<ul>
-<li>number</li>
-<li>string</li>
-<li>boolean</li>
-<li>null</li>
-<li>undefined</li>
-</ul>
-<p>Even with the advent of const this only partly changed. The const keyword makes the assignment constant for primitives. But the immutability of composite types such as Object and Array is limited.</p>
-<p>Let’s start with an example concerning a primitive type, String.</p>
-<pre class="javascript"><code>var someName = &#39;franz Kafka&#39;;
-console.log(someName[0]); // &#39;f&#39;
+<p>You cannot get statistics such as visit count on GitHub Pages without a third-party solution, an external server/service. I wanted a rudimentary visit counter - not storing unnecessary or semiprivate data about the visitor such OS, etc., only visits and made a solution using an AWS serverless lambda storing data in a DynamoDB table. The solution is not specific to GitHub Pages, and could be used with any hosting that doesn’t allow you access to the server.</p>
+<p><a href="https://github.com/bergsans/github-pages-aws-visit-counter">My solution</a> saves visits this month (on which page), all-time(on which page), and the total number of visits. The data is presented in text format, either in the browser or using curl (or some other tool).</p>
+<p>If someone would want to use it with AWS, change the value of <code>GITHUB_PAGES_URL</code> in <code>src/functions/new-visit/handler.ts</code> to your site, and add a GET-request to <code>https://{GENERATED_AWS_URL}/dev/api/new-visit?url=${window.location.url}</code>. View statistics from <code>{GENERATED_AWS_URL}/dev/api/get-visits</code>.</p>
+<p>Data is presented in text but could you easily either go from this data or change the code to present in using a HTML table. This is how it can look:</p>
+<pre><code>$ curl {GENERATED_AWS_URL}/dev/api/get-visits
 
-someName[0] = &#39;F&#39;;
-console.log(someName); // &#39;franz Kafka&#39;
 
-someName = someName.replace(&#39;f&#39;, &#39;F&#39;);
-console.log(someName); // &#39;Franz Kafka&#39;</code></pre>
-<p>If we would have written,</p>
-<pre class="javascript"><code>const someName = &#39;franz Kafka&#39;;</code></pre>
-<p>…no new assignment of another value would be possible. We would have to create another variable,</p>
-<pre class="javascript"><code>const newSpelling =  someName.replace(&#39;f&#39;, &#39;F&#39;);
-console.log(newSpelling); // &#39;Franz Kafka&#39;</code></pre>
-<p>…and thus the keyword const fills its purpose in this context.</p>
-<p>However, the limits of const(ant) assignments in JavaScript become obvious when turning to Object and Array. And without the use of a library or your own functions, there is no real rescue.</p>
-<p>The freeze and preventExtensions methods of Object are useful. Unfortunately, both are ‘shallow’. They only work on the first ‘level’ of nodes, never on nested leaves/nodes.</p>
-<p>Say you have nested object:</p>
-<pre class="javascript"><code>const someObject = {
-  a: { c: { d: 666 } },
-  b: 666
-};
+THIS MONTH
+==========
+https://bergsans.github.io/5    --      2
+https://bergsans.github.io/3    --      1
 
-console.log(JSON.stringify(someObject));
-//&quot;{&#39;a&#39;:{&#39;c&#39;:{&#39;d&#39;:666}},&#39;b&#39;:666}&quot;</code></pre>
-<p>Now this is possible, even though the value assigment is of type const.</p>
-<pre class="javascript"><code>someObject.b = 665;
 
-console.log(JSON.stringify(someObject));
-//&quot;{&#39;a&#39;:{&#39;c&#39;:{&#39;d&#39;:666}},&#39;b&#39;:665}&quot;</code></pre>
-<p>If we use the freeze method of Object…</p>
-<pre class="javascript"><code>Object.freeze(someObject);
-someObject.b = 664;
+ALL TIME
+==========
+https://bergsans.github.io/2    --      2
+https://bergsans.github.io/1    --      3
+https://bergsans.github.io/5    --      1
 
-console.log(JSON.stringify(someObject));
-//&quot;{&#39;a&#39;:{&#39;c&#39;:{&#39;d&#39;:666}},&#39;b&#39;:665}&quot;
 
-...the key &#39;b&#39; is *not* assigned a new value. But...
+TOTAL
+==========
+11</code></pre>
+<p><a href="https://github.com/bergsans/github-pages-aws-visit-counter">AWS GitHub Pages visit counter @ GitHub.</a></p>
 
-someObject.a.c.d = 664;
-
-console.log(JSON.stringify(someObject));
-// &quot;{&#39;a&#39;:{&#39;c&#39;:{&#39;d&#39;:664}},&#39;b&#39;:665}&quot;</code></pre>
-<p>The key ‘d’ of ‘c’ (of key ‘a’) did change and we have proven the limits of the freeze method. Nevertheless, it’s quite simple to make your own deep freeze method. You can either make a function of its own or (as I will do here) attach it to the Object prototype. In real life you should use Immutability.js or some other library, I guess.</p>
-<pre class="javascript"><code>Object.prototype.deepFreeze = function(obj = this) {
-  return (function fn(objectToLoop) {
-    Object.freeze(objectToLoop);
-    for (let key in objectToLoop) {
-      if (
-        Array.isArray(objectToLoop[key]) ||
-        typeof objectToLoop[key] == &#39;object&#39;
-      ) {
-        fn(objectToLoop[key]);
-      }
-    }
-  })(obj);
-};</code></pre>
-<p>This method uses a recursive strategy to iterate through the Object and freeze each level by use of the freeze method. Thus,</p>
-<pre class="javascript"><code>const someObject2 = {
-  a: { c: { d: 666 } },
-  b: 666
-};
-someObject2.deepFreeze();
-someObject2.b = 665;
-someObject2.a.c.d = 664;
-
-console.log(JSON.stringify(someObject2));
-&quot;{&#39;a&#39;:{&#39;c&#39;:{&#39;d&#39;:666}},&#39;b&#39;:666}&quot;</code></pre>
-<p>If we’d want a more condensed formulation we could refactor the code and write:</p>
-<pre class="javascript"><code>Object.prototype.deepFreeze = function(obj = this) {
-  return (function fn(objectToLoop) {
-    Object.freeze(objectToLoop);
-    Object.keys(objectToLoop).forEach(
-      key =&gt; Array.isArray(objectToLoop[key])
-             || typeof objectToLoop[key] == &#39;object&#39;
-        ? fn(objectToLoop[key])
-        : null
-      );
-  })(obj);
-};</code></pre>
-<p>Why is this the case? Why have a freeze method that’s so limited? If we check the ECMAScript Specification for freeze of ES5, there are no hints on this.</p>
-<p>I for one actually think there is a consequence to this behavior.</p>
-<pre class="javascript"><code>const arr = [[2],[1]];
-console.log(arr.includes(2)); // false
-
-const arr = [[1,2 ], [3, 4]];
-console.log(arr[0].includes(2)); //true</code></pre>
-<p>We could make a method or function named deep-includes that would search every element (and its sub elements). The same goes for deep-copy and deep-find and so on. But if this came out of the box, you would hide how the language works. Also, perhaps we don’t always want to deep-search an array. What I mean is that this behavior is a good thing. Let’s not change it.</p>
 
 
 <div style="margin: 40px 0;">
