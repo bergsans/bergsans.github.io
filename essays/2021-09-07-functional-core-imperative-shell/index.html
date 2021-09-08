@@ -376,15 +376,15 @@ console.log(logObj(obj));
 <p>Following standards similar to ‘literary criticism’ and related fields, most people, I think, would agree that it’s easier to read pure functions (often written with only a few lines of code) since no or little (if they’re dependent on other pure functions) tracking is necessary for understanding. Besides from naming conventions, this aspect is arguable immensely important for understanding functions and how it relates to other parts of the code.</p>
 <p>Another aspect is its purity, its mathematical nature. An isolated function with no side effects can be expected to produce perfect results (regardless of if the results are the results we wanted, I should add), reliable and unambiguous in contrast to a function containing an HTTP request, and therefore relies upon an external dependency, its server status, etc.</p>
 <p>All things mentioned make pure functions easier to reason about, and also make them, for technical reasons, easier to test since it’s clear what to expect from an input.</p>
-<p>The success or failure of nonpure functions depends on external factors which makes them hard to test; pure functions are testable by default. Mocks and stubs are strictly speaking aliens notions in the sphere of functional programming, indications that the code needs refactoring. When values are boundaries to the outside, on the other hand, we obtain composability.</p>
+<p>The success or failure of nonpure functions depends on external factors which makes them hard to test; pure functions are testable by default. Mocks and stubs are strictly speaking alien notions in the sphere of functional programming, indications that the code needs refactoring. When values are boundaries to the outside, on the other hand, we obtain composability.</p>
 <p>My small lib contains,</p>
 <ul>
 <li>A boxifyer</li>
-<li>A text ANSI formatter (*colors, bold)</li>
+<li>A text ANSI formatter (colors, bold)</li>
 <li>An ANSI purifier</li>
-<li>A object pretty-printer</li>
+<li>An object pretty-printer</li>
 </ul>
-<p>and fills narrow, but clear purpose (for me). <a href="https://github.com/bergsans/crude-dev-tools">The codebase is quite tiny</a>:</p>
+<p>and fills a narrow, but clear purpose (for me). <a href="https://github.com/bergsans/crude-dev-tools">The codebase is quite tiny</a>:</p>
 <pre class="javascript"><code>const HEAD = 0;
 
 const colors = {
@@ -457,31 +457,26 @@ function whichType(entity) {
   return typeof entity;
 }
 
-const typeFns = {
-  array: (acc, val, key, level) =&gt;
-    acc.concat(fmtProp(key, &#39;array&#39;, level, val)),
-  object: (acc, val, key, level) =&gt;
-    compose(
-      concat(fmtProp(key, &#39;object&#39;, level, null)),
-      concat(logObj(val, level + 1))
-    )(acc),
-  boolean: (acc, val, key, level) =&gt;
-    acc.concat(fmtProp(key, &#39;boolean&#39;, level, val)),
-  null: (acc, val, key, level) =&gt; acc.concat(fmtProp(key, &#39;null&#39;, level, val)),
-  symbol: (acc, val, key, level) =&gt;
-    acc.concat(fmtProp(key, &#39;symbol&#39;, level, val)),
-  string: (acc, val, key, level) =&gt;
-    acc.concat(fmtProp(key, &#39;string&#39;, level, val)),
-  number: (acc, val, key, level) =&gt;
-    acc.concat(fmtProp(key, &#39;string&#39;, level, val)),
-  Map: (acc, val, key, level) =&gt; acc.concat(fmtProp(key, &#39;Map&#39;, level, val)),
-  Set: (acc, val, key, level) =&gt; acc.concat(fmtProp(key, &#39;Set&#39;, level, val)),
-};
+function fmtObj(valType, shouldUseColors, acc, val, key, level) {
+  return valType === 'object'
+    ? compose(
+        concat(fmtProp(key, 'object', level, null)),
+        concat(logObj(val, shouldUseColors, level + 1))
+      )(acc)
+    : acc.concat(fmtProp(key, valType, level, val));
+}
 
 function logObj(object, shouldUseColors = true, level = 0) {
-  const coloredStr = Object.entries(object).reduce((acc, [key, value]) =&gt; {
-    return typeFns[whichType(object[key])](acc, value, key, level);
-  }, &#39;&#39;);
+  const coloredStr = Object.entries(object).reduce((acc, [key, value]) => {
+    return fmtObj(
+      whichType(object[key]),
+      shouldUseColors,
+      acc,
+      value,
+      key,
+      level
+    );
+  }, '');
   return shouldUseColors ? coloredStr : purify(coloredStr);
 }
 
