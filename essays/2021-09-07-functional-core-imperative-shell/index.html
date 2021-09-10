@@ -466,17 +466,16 @@ function fmtObj(valType, shouldUseColors, acc, val, key, level) {
     : acc.concat(fmtProp(key, valType, level, val));
 }
 
+const createLns =
+  (level, object, shouldUseColors) =>
+  (acc, [key, value]) =>
+    fmtObj(whichType(object[key]), shouldUseColors, acc, value, key, level);
+
 function logObj(object, shouldUseColors = true, level = 0) {
-  const coloredStr = Object.entries(object).reduce((acc, [key, value]) => {
-    return fmtObj(
-      whichType(object[key]),
-      shouldUseColors,
-      acc,
-      value,
-      key,
-      level
-    );
-  }, '');
+  const coloredStr = Object.entries(object).reduce(
+    createLns(level, object, shouldUseColors),
+    ''
+  );
   return shouldUseColors ? coloredStr : purify(coloredStr);
 }
 
