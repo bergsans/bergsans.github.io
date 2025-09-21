@@ -1,0 +1,77 @@
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+CSS rules to specify families
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Oswald:wght@700&family=Zen+Kurenaido&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&display=swap" rel="stylesheet">
+  <title>Maskinmänniskan</title>
+</head>
+<body>
+  <style>
+    body {
+      background-color: black;
+    }
+    img {
+      display: block;
+      margin: auto;
+    }
+    h1, h2, p {
+      text-align: center;
+      color: #eceff4;
+    }
+    h1, h2 {
+      font-family: 'Oswald';
+    }
+    h1 {
+      font-size: 240%;
+    }
+    p {
+      font-family: 'Zen Kurenaido';
+      font-size: 120%;
+      max-width: 400px;
+    }
+    .button {
+      cursor: pointer;
+    }
+    .button:hover {
+      color: #bf616a;
+    }
+    #main {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      margin-right: -50%;
+      transform: translate(-50%, -50%)
+    }
+  </style>
+  <div id="main">
+    <h1>MASKINMÄNNISKAN</h1>
+    <img src="https://bergsans.net/maskinmanniskan/machine-man3.png" />
+    <h2 class="button" id="playbtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-play-fill" viewBox="0 0 16 16">
+  <path d="m11.596 8.697-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393z"/>
+</svg> LYSSNA (10:50)
+    </h2>
+    <p>Text, inläsning och bild av Claes-Magnus Berg.</p>
+  </div>
+  <script>
+    const shortStory = new Audio('https://bergsans.net/maskinmanniskan/maskinmanniskan.mp3');
+    const playBtn = document.querySelector('#playbtn');
+    playBtn.addEventListener('click', () => {
+      shortStory.play();
+    });
+    fetch(
+      `https://b6m38uucje.execute-api.eu-central-1.amazonaws.com/dev/api/new-visit?url=${window.location.href}`,
+      {
+        method: 'GET',
+        mode: 'cors',
+      }
+    )
+    .then(r => r.json())
+    .then(console.log)
+    .catch(console.log);
+  </script>
+</body>
+</html>
