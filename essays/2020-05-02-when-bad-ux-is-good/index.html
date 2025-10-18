@@ -530,8 +530,11 @@
       Headache Comix, an underground magazine for comics, so far only available
       in print. He asked me to do a website for Headache Comix, and I said
       yes—why not? Visit
-      <a href="http://headachecomix.com">headachecomix.com</a> to see the
-      result.
+      <a
+        href="https://web.archive.org/web/20200502190327/http://headachecomix.com/about"
+        >headachecomix.com</a
+      >
+      to see the result.
     </p>
     <p>
       Headache Comix had quite strong opinions on what they wanted. Luckily for
@@ -710,26 +713,5 @@
     </div>
 
     <!-- code folding -->
-
-    <!-- dynamically load mathjax for compatibility with self-contained -->
-    <script>
-      (function () {
-        var script = document.createElement("script");
-        script.type = "text/javascript";
-        script.src =
-          "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
-        document.getElementsByTagName("head")[0].appendChild(script);
-      })();
-      fetch(
-        `https://b6m38uucje.execute-api.eu-central-1.amazonaws.com/dev/api/new-visit?url=${window.location.href}`,
-        {
-          method: "GET",
-          mode: "cors",
-        }
-      )
-        .then((r) => r.json())
-        .then(console.log)
-        .catch(console.log);
-    </script>
   </body>
 </html>
