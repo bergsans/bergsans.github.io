@@ -1,0 +1,27 @@
+ <!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Conway's Game of Life</title>
+        <meta name="author" content="Claes-Magnus Berg">
+        <meta name="description" content="FP-like implementation of Conway's Game of Life">
+        <meta name="keywords" content="Game of Life, Conway, puzzle, genetic evolution">
+        <link rel="stylesheet" href="styles.css" type="text/css">
+    </head>
+    <body>
+        <canvas id="simulation-canvas"></canvas>
+        <img id="control" src="play2.png" />
+        <div id="general">
+            <h1>Conway's Game of Life</h1>
+            <p>1. A live cell with 2 or 3 live neighbours survives.</p>
+            <p>2. A dead cell with 3 live neighbours becomes a live cell.</p>
+            <p>3. All other live cells die. And all other dead cells stay dead.</p>
+
+        </div>
+        <p id="how-to">When not playing, make patterns of your own!</p>
+        <p id="info">Generation:</p> 
+        <p id="gen-count">0</p>
+        <script src="bundle.js"></script>
+    </body>
+</html>
+
