@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="dcterms.date" content="2020-10-03" />
+  <title>Exploring transduce</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="https://bergsans.net/css/tufte.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Exploring transduce</h1>
+<p class="date">2020-10-03</p>
+</header>
+<p>I’ve made a <a href="https://github.com/bergsans/transduce-example">simple microbenchmark</a> of a condensed, ‘hipsteresque’ solution of a problem, a solution that’s more optimized, a solution using standard, ‘vanilla’ JavaScript methods, and one using the <a href="https://www.youtube.com/watch?v=6mTbuzafcII">Rich Hickeys notion of a tranduce</a>. I’ve added an imperative solution for comparison.</p>
+<p>For a good introduction to transduce read <a href="https://raganwald.com/2017/04/30/transducers.html">Reginald Braithwaite’s thoughts about transducers in JavaScript</a> and Eric Elliot’s <a href="https://medium.com/javascript-scene/transducers-efficient-data-processing-pipelines-in-javascript-7985330fe73d">Transducers: Efficient Data Processing Pipelines in JavaScript</a>.</p>
+<p>Intuitively, I thought the differences between a fairly good functional solution using some kind of chained composition and transducers would be greater. Only in large data sets, the difference appears and the difference is - I think - quite trivial.</p>
+<p><code>map</code>, <code>filter</code> &amp; <code>reduce</code> of the Array prototype in JavaScript are very useful. But they are not very aligned with functional programming. If you rewrite those methods in a hipsteresque fashion, taking full advantage of the expressiveness of JavaScript, you end up with neat, quite condensed code, fit for partial application and compostions.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="kw">const</span> map <span class="op">=</span> (fn) <span class="kw">=&gt;</span> (xs) <span class="kw">=&gt;</span> xs<span class="op">.</span><span class="fu">reduce</span>((acc<span class="op">,</span> x) <span class="kw">=&gt;</span> [<span class="op">...</span>acc<span class="op">,</span> <span class="fu">fn</span>(x)]<span class="op">,</span> [])<span class="op">;</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a><span class="kw">const</span> filter <span class="op">=</span> (predicate) <span class="kw">=&gt;</span> (xs) <span class="kw">=&gt;</span> xs<span class="op">.</span><span class="fu">reduce</span>(</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a>  (acc<span class="op">,</span> x) <span class="kw">=&gt;</span> (<span class="fu">predicate</span>(x)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a>    <span class="op">?</span> [<span class="op">...</span>acc<span class="op">,</span> x]</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a>    <span class="op">:</span> acc</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true"></a>  )<span class="op">,</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true"></a>  []<span class="op">,</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true"></a>)<span class="op">;</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true"></a><span class="kw">const</span> fold <span class="op">=</span> (fn<span class="op">,</span> initial) <span class="kw">=&gt;</span> (x) <span class="kw">=&gt;</span> {</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true"></a>  <span class="kw">const</span> [head<span class="op">,</span> <span class="op">...</span>tail] <span class="op">=</span> x<span class="op">;</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true"></a>  <span class="kw">const</span> result <span class="op">=</span> <span class="fu">fn</span>(initial<span class="op">,</span> head)<span class="op">;</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true"></a>  <span class="cf">return</span> tail<span class="op">.</span><span class="at">length</span> <span class="op">&gt;</span> <span class="dv">0</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true"></a>    <span class="op">?</span> <span class="fu">fold</span>(fn<span class="op">,</span> result)(tail)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true"></a>    <span class="op">:</span> <span class="fu">fn</span>(initial<span class="op">,</span> head)<span class="op">;</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true"></a>}<span class="op">;</span></span></code></pre></div>
+<p>However, performing operations, using such neat implementations, on even small collections (arrays) are inefficient and often end up with stack overflow.</p>
+<p>This is why it’s important to respect the fact that JavaScript not is a pure language in terms of functional programming, even though it’s possible to use a functional programming “style”.</p>
+<p>If we instead make the implementations in themselves less functional, we can reduce issues while still using a functional style in a meaningful manner. What’s important is values ‘eventually becoming immutable’, purity ‘around’ and ‘between’ functions - not purity inside functions.</p>
+<p>To avoid stack overflow and inefficiency, these implementations use the principle of ‘eventually becoming immutable’.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="kw">const</span> mapFast <span class="op">=</span> (fn) <span class="kw">=&gt;</span> (xs) <span class="kw">=&gt;</span> {</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a>  <span class="kw">const</span> newXs <span class="op">=</span> []<span class="op">;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a>  <span class="cf">for</span> (<span class="kw">let</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> xs<span class="op">.</span><span class="at">length</span><span class="op">;</span> i<span class="op">++</span>) {</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a>    newXs<span class="op">.</span><span class="fu">push</span>(<span class="fu">fn</span>(xs[i]))<span class="op">;</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a>  }</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a>  <span class="cf">return</span> newXs<span class="op">;</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true"></a>}<span class="op">;</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true"></a><span class="kw">const</span> filterFast <span class="op">=</span> (predicate) <span class="kw">=&gt;</span> (xs) <span class="kw">=&gt;</span> {</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true"></a>  <span class="kw">const</span> newXs <span class="op">=</span> []<span class="op">;</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true"></a>  <span class="cf">for</span> (<span class="kw">let</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> xs<span class="op">.</span><span class="at">length</span><span class="op">;</span> i<span class="op">++</span>) {</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true"></a>    <span class="cf">if</span> (<span class="fu">predicate</span>(xs[i])) newXs<span class="op">.</span><span class="fu">push</span>(xs[i])<span class="op">;</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true"></a>  }</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true"></a>  <span class="cf">return</span> newXs<span class="op">;</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true"></a>}<span class="op">;</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true"></a><span class="kw">const</span> foldFast <span class="op">=</span> (fn<span class="op">,</span> initial) <span class="kw">=&gt;</span> (xs) <span class="kw">=&gt;</span> {</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true"></a>  <span class="cf">for</span> (<span class="kw">let</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> xs<span class="op">.</span><span class="at">length</span><span class="op">;</span> i<span class="op">++</span>) {</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true"></a>    initial <span class="op">=</span> <span class="fu">fn</span>(initial<span class="op">,</span> xs[i])<span class="op">;</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true"></a>  }</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true"></a>  <span class="cf">return</span> initial<span class="op">;</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true"></a>}<span class="op">;</span></span></code></pre></div>
+<p>I’ve also made use some helpers,</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="kw">const</span> compose <span class="op">=</span> (<span class="op">...</span>fns) <span class="kw">=&gt;</span> fns<span class="op">.</span><span class="fu">reduceRight</span>(</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a>  (f<span class="op">,</span> g) <span class="kw">=&gt;</span> (<span class="op">...</span>args) <span class="kw">=&gt;</span> <span class="fu">g</span>(<span class="fu">f</span>(<span class="op">...</span>args))</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a>)<span class="op">;</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true"></a><span class="kw">const</span> composeFast <span class="op">=</span> (<span class="op">...</span>fns) <span class="kw">=&gt;</span> (<span class="op">...</span>args) <span class="kw">=&gt;</span> {</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true"></a>  <span class="kw">let</span> result <span class="op">=</span> fns[<span class="dv">0</span>](<span class="op">...</span>args)<span class="op">;</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true"></a>  <span class="cf">for</span> (<span class="kw">let</span> i <span class="op">=</span> fns<span class="op">.</span><span class="at">length</span> <span class="op">-</span> <span class="dv">1</span><span class="op">;</span> i <span class="op">&gt;</span> <span class="dv">1</span><span class="op">;</span> i<span class="op">--</span>) {</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true"></a>    result <span class="op">=</span> fns[i](result)<span class="op">;</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true"></a>  }</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true"></a>  <span class="cf">return</span> result<span class="op">;</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true"></a>}<span class="op">;</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true"></a><span class="kw">const</span> isEven <span class="op">=</span> (x) <span class="kw">=&gt;</span> x <span class="op">%</span> <span class="dv">2</span> <span class="op">===</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true"></a><span class="kw">const</span> add <span class="op">=</span> (x<span class="op">,</span> y) <span class="kw">=&gt;</span> x <span class="op">+</span> y<span class="op">;</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true"></a><span class="kw">const</span> add1 <span class="op">=</span> (x) <span class="kw">=&gt;</span> x <span class="op">+</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true"></a><span class="kw">const</span> multBy10 <span class="op">=</span> (x) <span class="kw">=&gt;</span> x <span class="op">*</span> <span class="dv">10</span><span class="op">;</span></span></code></pre></div>
+<p>When ‘composed’, the hipsteresque implementations are slow and go stack overflow.</p>
+<p>The implementations written in a more sensible fashion are not only faster but also doesn’t crash. The solution with best performance is the tranduce composition (and even better performance with the imperative solution).</p>
+<p>By separating the data from the function application, a central thought-figure in functional programming becomes visible - namely that (which also is visible in the ‘hipsteresque’ verions) <code>map</code> and <code>filter</code> are mere ‘versions’ of <code>reduce</code>. And if we make them share signature, we can fold the functions (apply them) together, iterate a collection once.</p>
+<p>If not, between every transformation an intermediate collection will be recreated. For each <code>map</code>, <code>filter</code> and so on, a new iteration of the collection takes place. The black magic of transduce is to acknowledge the transformations as folds, recieving and applying a reducer.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="kw">const</span> rMap <span class="op">=</span> (fn) <span class="kw">=&gt;</span> (reducer) <span class="kw">=&gt;</span> (acc<span class="op">,</span> x) <span class="kw">=&gt;</span> <span class="fu">reducer</span>(acc<span class="op">,</span> <span class="fu">fn</span>(x))<span class="op">;</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a><span class="kw">const</span> rFilter <span class="op">=</span> (predicate) <span class="kw">=&gt;</span> (reducer) <span class="kw">=&gt;</span> (acc<span class="op">,</span> x) <span class="kw">=&gt;</span> (</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a>  <span class="fu">predicate</span>(x)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a>    <span class="op">?</span> <span class="fu">reducer</span>(acc<span class="op">,</span> x)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true"></a>    <span class="op">:</span> acc</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true"></a>)<span class="op">;</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true"></a><span class="kw">const</span> concat <span class="op">=</span> (acc<span class="op">,</span> x) <span class="kw">=&gt;</span> {</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true"></a>  acc<span class="op">.</span><span class="fu">push</span>(x)<span class="op">;</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true"></a>  <span class="cf">return</span> acc<span class="op">;</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true"></a>}<span class="op">;</span></span></code></pre></div>
+<p>This allow us, like in the microbenchmark, itterate once, if the data type is the same. With transduce you apply a set of transformations to a value, iterate and inject the transformed value in the collection using the provided ‘joiner’.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a><span class="kw">const</span> transduced <span class="op">=</span> <span class="fu">composeFast</span>(</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a>  <span class="fu">rFilter</span>(isEven)<span class="op">,</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a>  <span class="fu">rMap</span>(multBy10)<span class="op">,</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true"></a>)(concat)<span class="op">;</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true"></a><span class="kw">const</span> result <span class="op">=</span> <span class="fu">composeFast</span>(</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true"></a>  <span class="fu">foldFast</span>(add<span class="op">,</span> <span class="dv">0</span>)<span class="op">,</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true"></a>  transduced<span class="op">,</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true"></a>)(data)<span class="op">;</span></span></code></pre></div>
+<p>An imperative solution clearly have the upperhand with regard to efficiency. The main problem with this solution is not impurity but that it’s not ‘composable’. Arguable, in a real situation, perhaps we still should prefer to isolate heavy operations in a box like this since the difference in performance - given other operations - could ‘add up’? But this is beside the point in this context.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a><span class="kw">function</span> <span class="fu">imperativeSolution</span>(data) {</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true"></a>  <span class="kw">let</span> result <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true"></a>  <span class="cf">for</span> (<span class="kw">let</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> data<span class="op">.</span><span class="at">length</span><span class="op">;</span> i<span class="op">++</span>) {</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true"></a>    data[i] <span class="op">=</span> <span class="fu">multBy10</span>(data[i])<span class="op">;</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true"></a>    <span class="cf">if</span> (<span class="fu">isEven</span>(data[i])) {</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true"></a>      result <span class="op">+=</span> data[i]<span class="op">;</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true"></a>    }</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true"></a>  }</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true"></a>  <span class="cf">return</span> result<span class="op">;</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true"></a>}</span></code></pre></div>
+<p>This microbenchmark is flawed as the results depends on the machine, the OS and available resources. The same ‘run’ will differ slightly depending on the current ‘situation’. Still, the results roughly indicate a tendency. The imperative solution is always much more efficient as other solutions, and so on.</p>
+<p>This are the result of my laptop computer of an array of increasing size (a set of integers increasing from 0 ..), running the same composed functions. Here I only compare a ‘start’ and ‘end’ (Unix) timestamp. I only run the hipsteresque implementations up to 10.000 elements (after this these implementations lead to stack overflow).</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a><span class="kw">function</span> <span class="fu">microBenchmark</span>(size<span class="op">,</span> label<span class="op">,</span> fn) {</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(label)<span class="op">;</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true"></a>  <span class="kw">const</span> startStamp <span class="op">=</span> <span class="kw">new</span> <span class="bu">Date</span>()<span class="op">.</span><span class="fu">getTime</span>()<span class="op">;</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true"></a>  <span class="kw">const</span> result <span class="op">=</span> <span class="fu">fn</span>()<span class="op">;</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`Result: </span><span class="sc">${</span>result<span class="sc">}</span><span class="vs">`</span>)<span class="op">;</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true"></a>  <span class="kw">const</span> endStamp <span class="op">=</span> <span class="kw">new</span> <span class="bu">Date</span>()<span class="op">.</span><span class="fu">getTime</span>()<span class="op">;</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`Time: </span><span class="sc">${</span>endStamp <span class="op">-</span> startStamp<span class="sc">}</span><span class="vs"> milliseconds.`</span>)<span class="op">;</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">&#39;-------------------------------------&#39;</span>)<span class="op">;</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true"></a>}</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true"></a><span class="cf">for</span> (<span class="kw">let</span> i <span class="op">=</span> <span class="dv">1000</span><span class="op">;</span> i <span class="op">&lt;</span> <span class="fl">1e7</span><span class="op">;</span> i <span class="op">*=</span> <span class="dv">4</span>) {</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true"></a>  <span class="kw">const</span> data <span class="op">=</span> <span class="bu">Array</span><span class="op">.</span><span class="fu">from</span>({ <span class="dt">length</span><span class="op">:</span> i }<span class="op">,</span> (_<span class="op">,</span> index) <span class="kw">=&gt;</span> index)<span class="op">;</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">&#39;-------------------------------------&#39;</span>)<span class="op">;</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`Array size: </span><span class="sc">${</span>i<span class="sc">}</span><span class="vs">`</span>)<span class="op">;</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">&#39;-------------------------------------&#39;</span>)<span class="op">;</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true"></a>  <span class="cf">if</span> (i <span class="op">&lt;=</span> <span class="dv">10000</span>) {</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true"></a>    <span class="fu">microBenchmark</span>(i<span class="op">,</span> <span class="st">&#39;SLOW&#39;</span><span class="op">,</span> () <span class="kw">=&gt;</span> <span class="fu">compose</span>(</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true"></a>      <span class="fu">fold</span>(add<span class="op">,</span> <span class="dv">0</span>)<span class="op">,</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true"></a>      <span class="fu">filter</span>(isEven)<span class="op">,</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true"></a>      <span class="fu">map</span>(multBy10)<span class="op">,</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true"></a>    )(data))<span class="op">;</span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true"></a>  } <span class="cf">else</span> {</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">&#39;SLOW = STACK OVERFLOW&#39;</span>)<span class="op">;</span></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">&#39;-------------------------------------&#39;</span>)<span class="op">;</span></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true"></a>  }</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true"></a></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true"></a>  <span class="fu">microBenchmark</span>(i<span class="op">,</span> <span class="st">&#39;STANDARD JS CHAIN&#39;</span><span class="op">,</span> () <span class="kw">=&gt;</span> data</span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true"></a>    <span class="op">.</span><span class="fu">map</span>(multBy10)</span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true"></a>    <span class="op">.</span><span class="fu">filter</span>(isEven)</span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true"></a>    <span class="op">.</span><span class="fu">reduce</span>(add<span class="op">,</span> <span class="dv">0</span>)</span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true"></a>  )<span class="op">;</span></span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true"></a></span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true"></a>  <span class="fu">microBenchmark</span>(i<span class="op">,</span> <span class="st">&#39;A BIT OPTIMIZED&#39;</span><span class="op">,</span> () <span class="kw">=&gt;</span> <span class="fu">composeFast</span>(</span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true"></a>      <span class="fu">foldFast</span>(add<span class="op">,</span> <span class="dv">0</span>)<span class="op">,</span></span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true"></a>      <span class="fu">filterFast</span>(isEven)<span class="op">,</span></span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true"></a>      <span class="fu">mapFast</span>(multBy10)<span class="op">,</span></span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true"></a>    )(data)</span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true"></a>  )<span class="op">;</span></span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true"></a></span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true"></a>  <span class="fu">microBenchmark</span>(i<span class="op">,</span> <span class="st">&#39;TRANSDUCE&#39;</span><span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true"></a>    <span class="kw">const</span> transduced <span class="op">=</span> <span class="fu">composeFast</span>(</span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true"></a>     <span class="fu">rFilter</span>(isEven)<span class="op">,</span></span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true"></a>     <span class="fu">rMap</span>(multBy10)<span class="op">,</span></span>
+<span id="cb7-44"><a href="#cb7-44" aria-hidden="true"></a>    )(concat)<span class="op">;</span></span>
+<span id="cb7-45"><a href="#cb7-45" aria-hidden="true"></a>    <span class="cf">return</span> <span class="fu">composeFast</span>(</span>
+<span id="cb7-46"><a href="#cb7-46" aria-hidden="true"></a>      <span class="fu">foldFast</span>(add<span class="op">,</span> <span class="dv">0</span>)<span class="op">,</span></span>
+<span id="cb7-47"><a href="#cb7-47" aria-hidden="true"></a>      transduced<span class="op">,</span></span>
+<span id="cb7-48"><a href="#cb7-48" aria-hidden="true"></a>    )(data)<span class="op">;</span></span>
+<span id="cb7-49"><a href="#cb7-49" aria-hidden="true"></a>  })<span class="op">;</span></span>
+<span id="cb7-50"><a href="#cb7-50" aria-hidden="true"></a></span>
+<span id="cb7-51"><a href="#cb7-51" aria-hidden="true"></a>  <span class="fu">microBenchmark</span>(i<span class="op">,</span> <span class="st">&#39;IMPERATIVE SOLUTION&#39;</span><span class="op">,</span> () <span class="kw">=&gt;</span> <span class="fu">imperativeSolution</span>(data))<span class="op">;</span></span>
+<span id="cb7-52"><a href="#cb7-52" aria-hidden="true"></a></span>
+<span id="cb7-53"><a href="#cb7-53" aria-hidden="true"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">&#39;</span><span class="sc">\n</span><span class="st">&#39;</span>)<span class="op">;</span></span>
+<span id="cb7-54"><a href="#cb7-54" aria-hidden="true"></a>}</span></code></pre></div>
+<figure>
+<img src="https://bergsans.net/images/table.png" alt="" /><figcaption>Size vs. Time (ms)</figcaption>
+</figure>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Size</th>
+<th style="text-align: left;">Label</th>
+<th style="text-align: right;">Time</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">4000</td>
+<td style="text-align: left;">Imperative</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">4000</td>
+<td style="text-align: left;">VanlillaJS</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">4000</td>
+<td style="text-align: left;">Optimized</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">64000</td>
+<td style="text-align: left;">Transduce</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">256000</td>
+<td style="text-align: left;">Transduce</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">256000</td>
+<td style="text-align: left;">Imperative</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">4000</td>
+<td style="text-align: left;">Transduce</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">4096000</td>
+<td style="text-align: left;">Optimized</td>
+<td style="text-align: right;">109</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">1024000</td>
+<td style="text-align: left;">Imperative</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">64000</td>
+<td style="text-align: left;">Imperative</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">64000</td>
+<td style="text-align: left;">Optimized</td>
+<td style="text-align: right;">5</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">256000</td>
+<td style="text-align: left;">Optimized</td>
+<td style="text-align: right;">5</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">64000</td>
+<td style="text-align: left;">VanlillaJS</td>
+<td style="text-align: right;">7</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">1024000</td>
+<td style="text-align: left;">Transduce</td>
+<td style="text-align: right;">8</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">4096000</td>
+<td style="text-align: left;">Imperative</td>
+<td style="text-align: right;">9</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">256000</td>
+<td style="text-align: left;">VanlillaJS</td>
+<td style="text-align: right;">15</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">1024000</td>
+<td style="text-align: left;">Optimized</td>
+<td style="text-align: right;">29</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">4096000</td>
+<td style="text-align: left;">Transduce</td>
+<td style="text-align: right;">34</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">1024000</td>
+<td style="text-align: left;">VanlillaJS</td>
+<td style="text-align: right;">63</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">4096000</td>
+<td style="text-align: left;">VanlillaJS</td>
+<td style="text-align: right;">248</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">4000</td>
+<td style="text-align: left;">Hipsteresque</td>
+<td style="text-align: right;">132</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">4096000</td>
+<td style="text-align: left;">Hipsteresque</td>
+<td style="text-align: right;">N/A</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">1024000</td>
+<td style="text-align: left;">Hipsteresque</td>
+<td style="text-align: right;">N/A</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">64000</td>
+<td style="text-align: left;">Hipsteresque</td>
+<td style="text-align: right;">N/A</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">256000</td>
+<td style="text-align: left;">Hipsteresque</td>
+<td style="text-align: right;">N/A</td>
+</tr>
+</tbody>
+</table>
+<p>What we can safely conclude is that the hipsteresque implementation is problematic. We can use it for sets larger than 1000 elements without facing stack overflow. Also, even with small sets it’s an inefficient solution. We know that the imperative solution always will be the fastest.</p>
+<p>When comparing efficiency between the remaining three ‘fuctional’ solutions, the set must include 1 million or more elements for it to be relevant. With the regard to functional programming we can also arguable claim that the standard, ‘vanilla’ solution is problematic.</p>
+<p>Full project available <a href="https://github.com/bergsans/transduce-example">at GitHub</a></p>
+<p><a href="https://bergsans.net/">Back to Archive</a></p>
+</body>
+</html>

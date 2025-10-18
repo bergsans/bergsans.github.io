@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="dcterms.date" content="2020-11-01" />
+  <title>Making a small game with Gloss</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="https://bergsans.net/css/tufte.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Making a small game with Gloss</h1>
+<p class="date">2020-11-01</p>
+</header>
+<p>Making a game, even if you have no intention of finishing it, is good practice in any programming language. While learning Haskell, I wanted to try <a href="https://github.com/bergsans/glossy-haskell-game">making a small retro game</a>.</p>
+<p><img src="https://raw.githubusercontent.com/bergsans/glossy-haskell-game/main/demo.gif" /></p>
+<p>Perhaps because Haskell is not commonly used for graphics programming, there are only a few graphics libraries available. Making this game I settled with <a href="https://hackage.haskell.org/package/gloss">Gloss</a>.</p>
+<p>I’ve found two other tutorials that may be of interest: Andrew Gibianski’s <a href="https://andrew.gibiansky.com/blog/haskell/haskell-gloss/">Your First Haskell Application (with Gloss)</a> and <a href="https://mmhaskell.com/blog/2019/3/25/making-a-glossy-game-part-1">Making a Glossy Game!</a> on Monday Morning Haskell.</p>
+<p>I use Stack and begun by adding Gloss as a dependency to <code>stack.yaml</code>,</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a>extra<span class="op">-</span>deps<span class="op">:</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a>  <span class="op">-</span> gloss<span class="op">-</span><span class="fl">1.13</span><span class="op">.</span><span class="fl">1.2</span></span></code></pre></div>
+<p>and added <code>gloss</code> (without a version number) to the <code>build-depends</code> of <code>library</code> and <code>executable</code>.</p>
+<p>Note that because of the limited scope of this project (~200 lines of code), I only used the <code>Main.hs</code> of the /app folder that is created when templating a new Stack project, <code>stack new [your_project]</code>.</p>
+<p>I used some assets. All graphics are free and were found at the <a href="https://opengameart.org/">Open Game Art</a>. The assets are located at such,</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a>assets<span class="op">/</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a>├── food<span class="op">.</span>bmp</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a>├── left1<span class="op">.</span>bmp</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a>├── left2<span class="op">.</span>bmp</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a>├── left3<span class="op">.</span>bmp</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a>├── left4<span class="op">.</span>bmp</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true"></a>├── left5<span class="op">.</span>bmp</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true"></a>├── left6<span class="op">.</span>bmp</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true"></a>├── level</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true"></a>├── right1<span class="op">.</span>bmp</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true"></a>├── right2<span class="op">.</span>bmp</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true"></a>├── right3<span class="op">.</span>bmp</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true"></a>├── right4<span class="op">.</span>bmp</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true"></a>├── right5<span class="op">.</span>bmp</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true"></a>├── right6<span class="op">.</span>bmp</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true"></a>└── tile<span class="op">.</span>bmp</span></code></pre></div>
+<p><code>level</code> is a plain text file containing the level, represented by <code>.</code> for background, <code>*</code> for wall, and <code>%</code> for food (a carrot).</p>
+<p>This is the text representation of the level:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="op">********************************</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a><span class="op">*..............................*</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a><span class="op">*%%%%%%%.......................*</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a><span class="op">************..............%....*</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true"></a><span class="op">*....................***********</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true"></a><span class="op">*..............................*</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true"></a><span class="op">*..............................*</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true"></a><span class="op">*....%.........*****...........*</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true"></a><span class="op">*..............**.....%........*</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true"></a><span class="op">*..............................*</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true"></a><span class="op">*..............................*</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true"></a><span class="op">*.........................%....*</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true"></a><span class="op">*....%..**...............*******</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true"></a><span class="op">*....*****..........************</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true"></a><span class="op">*..............................*</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true"></a><span class="op">*..............................*</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true"></a><span class="op">*.............................%*</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true"></a><span class="op">***..%.........**.............**</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true"></a><span class="op">******.........**..........%%%**</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true"></a><span class="op">******..................********</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true"></a><span class="op">********......................**</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true"></a><span class="op">********......................**</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true"></a><span class="op">***********................%%%**</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true"></a><span class="op">********************************</span></span></code></pre></div>
+<p>This project uses one language extension, <code>UnicodeSyntax</code>, for pretty code and imports from <code>Gloss</code>,</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="ot">{-# LANGUAGE UnicodeSyntax #-}</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a><span class="kw">module</span> <span class="dt">Main</span> <span class="kw">where</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true"></a><span class="kw">import</span> <span class="dt">Graphics.Gloss</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true"></a>importGraphics<span class="op">.</span><span class="dt">Gloss.Interface.Pure.Game</span></span></code></pre></div>
+<p>It’s reasonable to begin by modeling the type-level data structures.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a><span class="kw">data</span> <span class="dt">MoveDirection</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a> <span class="ot">=</span> <span class="dt">East</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a> <span class="op">|</span> <span class="dt">West</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true"></a> <span class="op">|</span> <span class="dt">None</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true"></a> <span class="kw">deriving</span> (<span class="dt">Eq</span>)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true"></a><span class="kw">data</span> <span class="dt">Heading</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true"></a> <span class="ot">=</span> <span class="dt">FacingWest</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true"></a> <span class="op">|</span> <span class="dt">FacingEast</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true"></a> <span class="kw">deriving</span> (<span class="dt">Eq</span>)</span></code></pre></div>
+<p><code>MoveDirection</code> is concerned wither the player moves West or East, or doesn’t move at all. I’ve not included a state for jumping to <code>MoveDirection</code> since I was unsure if this could be described as moving in the same sense.</p>
+<p><code>Heading</code> is for evaluating if the player is facing West or East. Unless you don’t move in the opposite direction, you keep facing a direction — even when you jump.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a><span class="kw">data</span> <span class="dt">GameState</span> <span class="ot">=</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true"></a> <span class="dt">GameState</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true"></a> {<span class="ot"> position ::</span> <span class="dt">Point</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true"></a> ,<span class="ot"> direction ::</span> <span class="dt">MoveDirection</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true"></a> ,<span class="ot"> heading ::</span> <span class="dt">Heading</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true"></a> ,<span class="ot"> currentLevel ::</span> <span class="dt">Level</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true"></a> ,<span class="ot"> spriteCount ::</span> <span class="dt">Int</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true"></a> ,<span class="ot"> speedX ::</span> <span class="dt">Float</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true"></a> ,<span class="ot"> speedY ::</span> <span class="dt">Float</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true"></a> }</span></code></pre></div>
+<p><code>GameState</code> is a <code>record</code> holding all game-related data. <code>position</code> holds the player position using a <code>Float</code> number. <code>Point</code> is imported from the Gloss library. <code>direction</code> is linked to <code>MoveDirection</code>, and <code>heading</code> to <code>Heading</code>.</p>
+<p><code>currentLevel</code> is of type <code>Level</code>, and holds the level we viewed before in plain text, although read and normalized to fit the needs.</p>
+<p>I’ll pause in describing the <code>GameState</code> and describe the types used for a level, as well as the normalization of the text representation of a level.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a><span class="kw">type</span> <span class="dt">CellType</span> <span class="ot">=</span> <span class="dt">Char</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true"></a><span class="kw">type</span> <span class="dt">Cell</span> <span class="ot">=</span> (<span class="dt">Point</span>, <span class="dt">CellType</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true"></a><span class="kw">type</span> <span class="dt">Level</span><span class="ot">=</span> [<span class="dt">Cell</span>]</span></code></pre></div>
+<p>A singular character, <code>Char</code>, is the type of the cell - the tile, if you will. I call this <code>CellType</code>. A cell as such contains a tuple holding a <code>Point</code> containing the x/y position of the cell, along with the <code>CellType</code>. A <code>Level</code> is a list containing a number of <code>Cell</code>.</p>
+<p>When reading the file - <code>level</code> - containing the text representation, I begin the normalization by passing it as a list to <code>prepareData</code>. In <code>prepareData</code> each row and the order of succession is passed to <code>makeRow</code>. As the type signature reveals, it takes a <code>[String]</code> and returns a <code>Level</code>.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true"></a><span class="ot">prepareData ::</span> [<span class="dt">String</span>] <span class="ot">-&gt;</span> <span class="dt">Level</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true"></a>prepareData rawData <span class="ot">=</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true"></a>  <span class="fu">concat</span> [makeRow (rawData <span class="op">!!</span> y) y <span class="op">|</span> y <span class="ot">&lt;-</span> [<span class="dv">0</span><span class="op">..</span><span class="fu">length</span> rawData <span class="op">-</span><span class="dv">1</span>]]</span></code></pre></div>
+<p><code>makeRow</code> takes a <code>String</code>, a row from the list of <code>[String]</code> passed to <code>prepareData</code>, and an <code>Int</code> — the row number — and returns a <code>Level</code> after the normalization.</p>
+<p>The <code>Level</code> only includes ‘actual’ tiles, that is walls and carrots (we don’t need to include the ‘background’). Since Gloss centers objects using Cartesian Coordinates, and describes a <code>Point</code> using <code>Float</code>, we transform the <code>Int</code> arising from the list comprehension, and fixates its view position on the window <code>display</code>Display<code>by multiplying the size of the tile minus half the width (for the x</code>Point`) and half the size of the tile.</p>
+<p>Similarly, I base y of <code>Point</code> on half the height of the window <code>Display</code> and again, half the tile size. I also inject the symbol to the second position of the tuple <code>Cell</code>.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a><span class="ot">makeRow ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Level</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true"></a>makeRow row y <span class="ot">=</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true"></a> [ ( ( (<span class="fu">fromIntegral</span> x <span class="op">*</span> tileSize) <span class="op">-</span> ((<span class="dv">1024</span> <span class="op">/</span> <span class="dv">2</span>) <span class="op">-</span> (tileSize <span class="op">/</span> <span class="dv">2</span>))</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true"></a> , (<span class="fu">fromIntegral</span> y <span class="op">*</span> tileSize) <span class="op">-</span> ((<span class="dv">768</span> <span class="op">/</span> <span class="dv">2</span>) <span class="op">-</span> (tileSize <span class="op">/</span> <span class="dv">2</span>)))</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true"></a> , row <span class="op">!!</span> x)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true"></a> <span class="op">|</span> x <span class="ot">&lt;-</span> [<span class="dv">0</span> <span class="op">..</span> <span class="fu">length</span> row <span class="op">-</span> <span class="dv">1</span>]</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true"></a> , row <span class="op">!!</span> x <span class="op">==</span> <span class="ch">&#39;*&#39;</span> <span class="op">||</span> row <span class="op">!!</span> x <span class="op">==</span> <span class="ch">&#39;%&#39;</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true"></a> ]</span></code></pre></div>
+<p>This would transform a character <code>*</code> situated at (0,0) in the text file to <code>((-528.0, -384.0), '*')</code>, and so on.</p>
+<p>32.0 is assigned to <code>tileSize</code>,</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true"></a><span class="ot">tileSize ::</span> <span class="dt">Float</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true"></a>tileSize <span class="ot">=</span> <span class="fl">32.0</span></span></code></pre></div>
+<p>Returning to the <code>GameState</code>, I set the types for a sprite-count, <code>spriteCount</code>, and vertical and horizontal speed, <code>speedX</code> and <code>speedY</code>.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true"></a>,<span class="ot"> spriteCount ::</span> <span class="dt">Int</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true"></a>,<span class="ot"> speedX ::</span> <span class="dt">Float</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true"></a>,<span class="ot"> speedY ::</span> <span class="dt">Float</span></span></code></pre></div>
+<p><code>spriteCount</code> is increased by 1 whenever the player move West or East. The sprite I use has 6 images for moving, so when <code>spriteCount</code> reaches 6, I set it to 0. <code>speedX</code> and <code>speedY</code> is the moving speed of vertical and horizontal movement respectively, measured in ‘pixels’ (a value rounded when used).</p>
+<p>I use the <a href="https://hackage.haskell.org/package/gloss-1.13.1.2/docs/Graphics-Gloss.html#v:play"><code>Display</code> mode of <code>play</code></a>. The Gloss documentation describes its parameters as such:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true"></a>play</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true"></a><span class="ot">::</span> <span class="dt">Display</span>                   <span class="dt">Display</span> mode<span class="op">.</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true"></a><span class="ot">-&gt;</span> <span class="dt">Color</span>                     <span class="dt">Background</span> color<span class="op">.</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true"></a><span class="ot">-&gt;</span> <span class="dt">Int</span>                       <span class="dt">Number</span> <span class="kw">of</span> simulation steps to <span class="fu">take</span> for each second</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true"></a>                             <span class="kw">of</span> real time<span class="op">.</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true"></a><span class="ot">-&gt;</span> world                     <span class="dt">The</span> initial value for world<span class="op">.</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true"></a><span class="ot">-&gt;</span> (world <span class="ot">-&gt;</span> <span class="dt">Picture</span>)        <span class="dt">A</span> function to convert the world a picture<span class="op">.</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true"></a><span class="ot">-&gt;</span> (<span class="dt">Event</span> <span class="ot">-&gt;</span> world <span class="ot">-&gt;</span> world) <span class="dt">A</span> function to handle input events<span class="op">.</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true"></a><span class="ot">-&gt;</span> (<span class="dt">Float</span> <span class="ot">-&gt;</span> world <span class="ot">-&gt;</span> world) <span class="dt">A</span> function to step the world one iteration<span class="op">.</span> <span class="dt">It</span> is</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true"></a>                             passed the period <span class="kw">of</span> time (<span class="kw">in</span> seconds) needing</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true"></a>                             to be advanced<span class="op">.</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true"></a><span class="ot">-&gt;</span> <span class="dt">IO</span> ()</span></code></pre></div>
+<p>Before initiating the game loop, I fetch all resources, sets an initial <code>GameState</code> and normalize the level,</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true"></a><span class="ot">main ::</span> <span class="dt">IO</span> ()</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true"></a>main <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true"></a> tileImg <span class="ot">&lt;-</span> loadBMP <span class="st">&quot;assets/tile.bmp&quot;</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true"></a> foodImg <span class="ot">&lt;-</span> loadBMP <span class="st">&quot;assets/food.bmp&quot;</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true"></a> left1 <span class="ot">&lt;-</span> loadBMP <span class="st">&quot;assets/left1.bmp&quot;</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true"></a> left2 <span class="ot">&lt;-</span> loadBMP <span class="st">&quot;assets/left2.bmp&quot;</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true"></a> left3 <span class="ot">&lt;-</span> loadBMP <span class="st">&quot;assets/left3.bmp&quot;</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true"></a> left4 <span class="ot">&lt;-</span> loadBMP <span class="st">&quot;assets/left4.bmp&quot;</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true"></a> left5 <span class="ot">&lt;-</span> loadBMP <span class="st">&quot;assets/left5.bmp&quot;</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true"></a> left6 <span class="ot">&lt;-</span> loadBMP <span class="st">&quot;assets/left6.bmp&quot;</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true"></a> right1 <span class="ot">&lt;-</span> loadBMP <span class="st">&quot;assets/right1.bmp&quot;</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true"></a> right2 <span class="ot">&lt;-</span> loadBMP <span class="st">&quot;assets/right2.bmp&quot;</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true"></a> right3 <span class="ot">&lt;-</span> loadBMP <span class="st">&quot;assets/right3.bmp&quot;</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true"></a> right4 <span class="ot">&lt;-</span> loadBMP <span class="st">&quot;assets/right4.bmp&quot;</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true"></a> right5 <span class="ot">&lt;-</span> loadBMP <span class="st">&quot;assets/right5.bmp&quot;</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true"></a> right6 <span class="ot">&lt;-</span> loadBMP <span class="st">&quot;assets/right6.bmp&quot;</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true"></a> rawData <span class="ot">&lt;-</span> <span class="fu">readFile</span> <span class="st">&quot;assets/level&quot;</span></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true"></a> <span class="kw">let</span> level <span class="ot">=</span> prepareData <span class="op">$</span> <span class="fu">reverse</span> <span class="op">$</span> <span class="fu">lines</span> rawData</span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true"></a> <span class="kw">let</span> state <span class="ot">=</span></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true"></a> <span class="dt">GameState</span></span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true"></a> { position <span class="ot">=</span> (<span class="fl">0.0</span>, <span class="fl">0.0</span>)</span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true"></a> , direction <span class="ot">=</span> <span class="dt">None</span></span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true"></a> , currentLevel <span class="ot">=</span> level</span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true"></a> , spriteCount <span class="ot">=</span> <span class="dv">0</span></span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true"></a> , heading <span class="ot">=</span> <span class="dt">FacingWest</span></span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true"></a> , speedX <span class="ot">=</span> <span class="dv">0</span></span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true"></a> , speedY <span class="ot">=</span> (<span class="op">-</span><span class="dv">6</span>)</span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true"></a> }</span></code></pre></div>
+<p>After this I call <code>play</code>,</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true"></a>play</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true"></a>     window</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true"></a>     background</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true"></a>     fps</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true"></a>     state</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true"></a>     (<span class="ot">`render`</span> [</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true"></a>         tileImg</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true"></a>         , foodImg</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true"></a>         , left1</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true"></a>         , left2</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true"></a>         , left3</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true"></a>         , left4</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true"></a>         , left5</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true"></a>         , left6</span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true"></a>         , right1</span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true"></a>         , right2</span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true"></a>         , right3</span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true"></a>         , right4</span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true"></a>         , right5</span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true"></a>         , right6</span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true"></a>     ])</span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true"></a>     handleKeys</span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true"></a>     update</span></code></pre></div>
+<p>in which <code>window</code>, <code>background</code> and <code>fps</code> are defined as,</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true"></a><span class="ot">window ::</span> <span class="dt">Display</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true"></a>window <span class="ot">=</span> <span class="dt">InWindow</span> <span class="st">&quot;Play w. Gloss&quot;</span> (<span class="dv">1024</span>, <span class="dv">768</span>) (<span class="dv">0</span>, <span class="dv">0</span>)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true"></a></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true"></a><span class="ot">background ::</span> <span class="dt">Color</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true"></a>background <span class="ot">=</span> makeColor <span class="fl">0.2</span> <span class="fl">0.1</span> <span class="fl">0.1</span> <span class="dv">1</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true"></a></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true"></a><span class="ot">fps ::</span> <span class="dt">Int</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true"></a>fps <span class="ot">=</span> <span class="dv">60</span></span></code></pre></div>
+<p>As seen in the Gloss documentation, the first four parameters - <code>window</code>, <code>background</code>, <code>fps</code>, <code>state</code> - are immutable.</p>
+<p>The <code>update</code> function takes a world and returns a <code>Picture</code>, an isolated side-effect. I pass the <code>GameState</code>, a set of <code>[Picture]</code> which are rendered to a <code>Picture</code>.</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true"></a><span class="ot">render ::</span> <span class="dt">GameState</span> <span class="ot">-&gt;</span> [<span class="dt">Picture</span>] <span class="ot">-&gt;</span> <span class="dt">Picture</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true"></a>render gs imgs <span class="ot">=</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true"></a> pictures</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true"></a> ([drawTile cell (<span class="fu">head</span> imgs) (imgs <span class="op">!!</span> <span class="dv">1</span>) <span class="op">|</span> cell <span class="ot">&lt;-</span> currentLevel gs] <span class="op">++</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true"></a> [ translate</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true"></a> (<span class="fu">fst</span> (position gs))</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true"></a> (<span class="fu">snd</span> (position gs) <span class="op">+</span> <span class="dv">10</span>)</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true"></a> (imgs <span class="op">!!</span> (spriteCount gs <span class="op">+</span> <span class="dv">2</span> <span class="op">+</span> isRight (heading gs)))</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true"></a> ])</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true"></a></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true"></a><span class="ot">whatImg ::</span> <span class="dt">Cell</span> <span class="ot">-&gt;</span> <span class="dt">Picture</span> <span class="ot">-&gt;</span> <span class="dt">Picture</span> <span class="ot">-&gt;</span> <span class="dt">Picture</span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true"></a>whatImg (_, cellType) tile food <span class="ot">=</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true"></a> <span class="kw">if</span> cellType <span class="op">==</span> <span class="ch">&#39;*&#39;</span></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true"></a> <span class="kw">then</span> tile</span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true"></a> <span class="kw">else</span> food</span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true"></a></span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true"></a><span class="ot">drawTile ::</span> <span class="dt">Cell</span> <span class="ot">-&gt;</span> <span class="dt">Picture</span> <span class="ot">-&gt;</span> <span class="dt">Picture</span> <span class="ot">-&gt;</span> <span class="dt">Picture</span></span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true"></a>drawTile cell tileImg foodImg <span class="ot">=</span></span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true"></a> <span class="fu">uncurry</span> translate (<span class="fu">fst</span> cell) (whatImg cell tileImg foodImg)</span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true"></a></span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true"></a><span class="ot">isRight ::</span> <span class="dt">Heading</span> <span class="ot">-&gt;</span> <span class="dt">Int</span></span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true"></a>isRight <span class="dt">FacingEast</span> <span class="ot">=</span> <span class="dv">6</span></span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true"></a>isRight _ <span class="ot">=</span><span class="dv">0</span></span></code></pre></div>
+<p>The first two elements of the <code>[Picture]</code> list is the images for the wall and the carrot. I iterate the <code>Level</code> of the <code>GameState</code> using a list comprehension, passing individual cells together with two images referenced to <code>drawTile</code>.</p>
+<p>Depending on if the passed cells <code>cellType</code> value, determined in <code>whatImg</code>, I render a wall or a carrot at the position of the <code>Point</code> of the cell.</p>
+<p>After drawing the ‘background’, the level as such, the player is rendered at the <code>position</code> of the <code>GameState</code>. The <code>spriteCount</code> + 2 (I jump the wall and carrot in the list of images) added with the value of <code>isRight</code> determines what sprite is rendered. If the player is <code>FacingEast</code> I add 6, otherwise 0, since the list of images happens to include sprites for <code>FacingLeft</code> before <code>FacingEast</code>.</p>
+<p>Now I continue with the next parameter of <code>play</code>, the parameter for user input.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true"></a><span class="ot">handleKeys ::</span> <span class="dt">Event</span> <span class="ot">-&gt;</span> <span class="dt">GameState</span> <span class="ot">-&gt;</span> <span class="dt">GameState</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true"></a>handleKeys (<span class="dt">EventKey</span> (<span class="dt">SpecialKey</span> <span class="dt">KeyLeft</span>) <span class="dt">Down</span> _ _) gs <span class="ot">=</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true"></a> gs {direction <span class="ot">=</span> <span class="dt">West</span>, heading <span class="ot">=</span> <span class="dt">FacingWest</span>}</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true"></a>handleKeys (<span class="dt">EventKey</span> (<span class="dt">SpecialKey</span> <span class="dt">KeyRight</span>) <span class="dt">Down</span> _ _) gs <span class="ot">=</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true"></a> gs {direction <span class="ot">=</span> <span class="dt">East</span>, heading <span class="ot">=</span> <span class="dt">FacingEast</span>}</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true"></a>handleKeys (<span class="dt">EventKey</span> (<span class="dt">SpecialKey</span> <span class="dt">KeySpace</span>) <span class="dt">Down</span> _ _) gs <span class="ot">=</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true"></a> gs</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true"></a> { speedY <span class="ot">=</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true"></a> <span class="kw">if</span> isCollision gs (<span class="fu">fst</span> (position gs), <span class="fu">snd</span> (position gs) <span class="op">+</span> speedY gs) <span class="ch">&#39;*&#39;</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true"></a> <span class="kw">then</span> <span class="dv">6</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true"></a> <span class="kw">else</span> (<span class="op">-</span><span class="dv">6</span>)</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true"></a> }</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true"></a>handleKeys _ gs <span class="ot">=</span> gs {direction <span class="ot">=</span><span class="dt">None</span>}</span></code></pre></div>
+<p>Using pattern matching I determine between four possible states. If the user press the Left or Right arrow, the <code>GameState</code> record is updated with a new <code>MoveDirection</code> and <code>Heading</code>. If the user press space, I modify <code>speedY</code>, if the player is standing on firm ground. If no key is pressed, the <code>MoveDirection</code> is assigned to <code>None</code>.</p>
+<p>In the last parameter of <code>play</code>, we make updates not relating to side-effects (such as user input in the parameter/function before).</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true"></a><span class="ot">update ::</span> <span class="dt">Float</span> <span class="ot">-&gt;</span> <span class="dt">GameState</span> <span class="ot">-&gt;</span> <span class="dt">GameState</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true"></a>update _ gs <span class="ot">=</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true"></a> gs</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true"></a> { speedY <span class="ot">=</span> checkSpeedY gs</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true"></a> , speedX <span class="ot">=</span> checkSpeedX gs</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true"></a> , position <span class="ot">=</span> moveY gs <span class="op">$</span> moveX (direction gs) gs</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true"></a> , spriteCount <span class="ot">=</span> incSprite gs</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true"></a> , currentLevel <span class="ot">=</span> checkFood gs</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true"></a> }</span></code></pre></div>
+<p>As previously quoted, the <code>update</code> of <code>play</code> is ‘A function to step the world one iteration. It is passed the period of time (in seconds) needing to be advanced.’ In this project, I’ve excluded making use of the first parameter for matters of convenience.</p>
+<p>Firstly, I check if <code>speedY</code> and <code>speedX</code> are to be updated and if so make necessary changes,</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true"></a><span class="ot">checkSpeedY ::</span> <span class="dt">GameState</span> <span class="ot">-&gt;</span> <span class="dt">Float</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true"></a>checkSpeedY gs</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true"></a> <span class="op">|</span> isCollision gs (<span class="fu">fst</span> (position gs), <span class="fu">snd</span> (position gs) <span class="op">+</span> speedY gs) <span class="ch">&#39;*&#39;</span> <span class="ot">=</span> <span class="op">-</span><span class="dv">3</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true"></a> <span class="op">|</span> speedY gs <span class="op">&gt;=</span> <span class="op">-</span><span class="dv">6</span> <span class="ot">=</span> speedY gs <span class="op">-</span> <span class="fl">0.1</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true"></a> <span class="op">|</span> <span class="fu">otherwise</span> <span class="ot">=</span> <span class="op">-</span><span class="dv">6</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true"></a></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true"></a><span class="ot">checkSpeedX ::</span> <span class="dt">GameState</span> <span class="ot">-&gt;</span> <span class="dt">Float</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true"></a>checkSpeedX gs</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true"></a>  <span class="op">|</span> direction gs <span class="op">==</span> <span class="dt">West</span> <span class="op">||</span> direction gs <span class="op">==</span> <span class="dt">East</span> <span class="ot">=</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true"></a><span class="kw">if</span> speedX gs <span class="op">&gt;</span> <span class="fl">5.0</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true"></a>  <span class="kw">then</span> <span class="fl">5.0</span></span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true"></a>  <span class="kw">else</span> speedX gs <span class="op">+</span> <span class="fl">0.5</span></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true"></a>  <span class="op">|</span> <span class="fu">otherwise</span> <span class="ot">=</span></span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true"></a><span class="kw">if</span> speedX gs <span class="op">&lt;=</span> <span class="dv">0</span></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true"></a>  <span class="kw">then</span> <span class="dv">0</span></span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true"></a>  <span class="kw">else</span> speedX gs <span class="op">-</span> <span class="fl">0.5</span></span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true"></a></span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true"></a><span class="ot">isCollision ::</span> <span class="dt">GameState</span> <span class="ot">-&gt;</span> <span class="dt">Point</span> <span class="ot">-&gt;</span> <span class="dt">CellType</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span></span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true"></a>isCollision gs pnt checkType <span class="ot">=</span></span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true"></a> <span class="fu">any</span></span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true"></a> (\((x, y), tileType) <span class="ot">-&gt;</span> tileType <span class="op">==</span> checkType <span class="op">&amp;&amp;</span> isHit pnt (x, y))</span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true"></a> (currentLevel gs)</span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true"></a></span>
+<span id="cb19-24"><a href="#cb19-24" aria-hidden="true"></a><span class="ot">isHit ::</span> <span class="dt">Point</span> <span class="ot">-&gt;</span> <span class="dt">Point</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span></span>
+<span id="cb19-25"><a href="#cb19-25" aria-hidden="true"></a>isHit (b1x, b1y) (b2x, b2y) <span class="ot">=</span></span>
+<span id="cb19-26"><a href="#cb19-26" aria-hidden="true"></a> (b1x <span class="op">-</span> <span class="dv">10</span>) <span class="op">&lt;</span> b2x <span class="op">+</span> tileSize <span class="op">&amp;&amp;</span></span>
+<span id="cb19-27"><a href="#cb19-27" aria-hidden="true"></a> b1x <span class="op">+</span><span class="dv">50</span><span class="op">-</span><span class="dv">10</span><span class="op">&gt;</span> b2x <span class="op">&amp;&amp;</span> b1y <span class="op">&lt;</span> b2y <span class="op">+</span> tileSize <span class="op">&amp;&amp;</span> b1y <span class="op">+</span><span class="dv">54</span><span class="op">&gt;</span> b2y</span></code></pre></div>
+<p>If the player is jumping, the <code>speedY</code> is assigned the default value of -6. If the player hits a ceiling, I lower the <code>speedY</code> value. Otherwise the player would freeze at the bottom of a wall tile until the <code>speedY</code> again would be positive. If jumping, I decrease the speed by 0.1. If moving horizontally, I check if the <code>MoveDirection</code> is <code>East</code> or <code>West</code>, using guards and increase <code>speedX</code> if it’s lower than 5.0. On the other hand, if the player is not moving, I decrease speed until it reaches 1 if not already defaulted.</p>
+<p><code>moveX</code> takes a <code>MoveDirection</code> and a <code>GameState</code> and returns a <code>Point</code>. If <code>MoveDirection</code> is either <code>West</code> or <code>East</code>, and if no collision is at hand, I modify the player position. If moving West, I multiply the <code>speedX</code> by -1, changing the direction of the movement. When <code>Direction</code> is <code>None</code>, I create the illusion of a decreasing acceleration by still moving the player, if <code>speedX</code> is greater than 0.</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true"></a><span class="ot">moveX ::</span> <span class="dt">MoveDirection</span> <span class="ot">-&gt;</span> <span class="dt">GameState</span> <span class="ot">-&gt;</span> <span class="dt">Point</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true"></a>moveX <span class="dt">East</span> gs <span class="ot">=</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true"></a>  <span class="kw">if</span> <span class="fu">not</span> (isCollision gs (<span class="fu">fst</span> (position gs) <span class="op">+</span> speedX gs, <span class="fu">snd</span> (position gs)) <span class="ch">&#39;*&#39;</span>)</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true"></a><span class="kw">then</span> (<span class="fu">fst</span> (position gs) <span class="op">+</span> speedX gs, <span class="fu">snd</span> (position gs))</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true"></a><span class="kw">else</span> position gs</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true"></a>moveX <span class="dt">West</span> gs <span class="ot">=</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true"></a>  <span class="kw">if</span> <span class="fu">not</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true"></a>   (isCollision</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true"></a>  gs</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true"></a>  (<span class="fu">fst</span> (position gs) <span class="op">+</span> speedX gs <span class="op">*</span> (<span class="op">-</span><span class="dv">1</span>), <span class="fu">snd</span> (position gs))</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true"></a>  <span class="ch">&#39;*&#39;</span>)</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true"></a><span class="kw">then</span> (<span class="fu">fst</span> (position gs) <span class="op">+</span> speedX gs <span class="op">*</span> (<span class="op">-</span><span class="dv">1</span>), <span class="fu">snd</span> (position gs))</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true"></a><span class="kw">else</span> position gs</span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true"></a>moveX _ gs <span class="ot">=</span></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true"></a>  <span class="kw">if</span> speedX gs <span class="op">&gt;</span> <span class="dv">0</span> <span class="op">&amp;&amp;</span></span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true"></a> <span class="fu">not</span></span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true"></a>   (isCollision</span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true"></a>  gs</span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true"></a>  ( <span class="fu">fst</span> (position gs) <span class="op">+</span></span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true"></a>speedX gs <span class="op">*</span></span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true"></a>(<span class="kw">if</span> heading gs <span class="op">==</span> <span class="dt">FacingWest</span></span>
+<span id="cb20-22"><a href="#cb20-22" aria-hidden="true"></a>   <span class="kw">then</span> (<span class="op">-</span><span class="dv">1</span>)</span>
+<span id="cb20-23"><a href="#cb20-23" aria-hidden="true"></a>   <span class="kw">else</span> <span class="dv">1</span>)</span>
+<span id="cb20-24"><a href="#cb20-24" aria-hidden="true"></a>  , <span class="fu">snd</span> (position gs))</span>
+<span id="cb20-25"><a href="#cb20-25" aria-hidden="true"></a>  <span class="ch">&#39;*&#39;</span>)</span>
+<span id="cb20-26"><a href="#cb20-26" aria-hidden="true"></a><span class="kw">then</span> ( <span class="fu">fst</span> (position gs) <span class="op">+</span></span>
+<span id="cb20-27"><a href="#cb20-27" aria-hidden="true"></a>   speedX gs <span class="op">*</span></span>
+<span id="cb20-28"><a href="#cb20-28" aria-hidden="true"></a>   (<span class="kw">if</span> heading gs <span class="op">==</span> <span class="dt">FacingWest</span></span>
+<span id="cb20-29"><a href="#cb20-29" aria-hidden="true"></a>  <span class="kw">then</span> (<span class="op">-</span><span class="dv">1</span>)</span>
+<span id="cb20-30"><a href="#cb20-30" aria-hidden="true"></a>  <span class="kw">else</span> <span class="dv">1</span>)</span>
+<span id="cb20-31"><a href="#cb20-31" aria-hidden="true"></a> , <span class="fu">snd</span> (position gs))</span>
+<span id="cb20-32"><a href="#cb20-32" aria-hidden="true"></a><span class="kw">else</span> position gs</span>
+<span id="cb20-33"><a href="#cb20-33" aria-hidden="true"></a></span>
+<span id="cb20-34"><a href="#cb20-34" aria-hidden="true"></a><span class="ot">moveY ::</span> <span class="dt">GameState</span> <span class="ot">-&gt;</span> <span class="dt">Point</span> <span class="ot">-&gt;</span> <span class="dt">Point</span></span>
+<span id="cb20-35"><a href="#cb20-35" aria-hidden="true"></a>moveY gs pnt <span class="ot">=</span></span>
+<span id="cb20-36"><a href="#cb20-36" aria-hidden="true"></a> <span class="kw">if</span> <span class="fu">not</span> (isCollision gs (<span class="fu">fst</span> pnt, <span class="fu">snd</span> pnt <span class="op">+</span> speedY gs) <span class="ch">&#39;*&#39;</span>)</span>
+<span id="cb20-37"><a href="#cb20-37" aria-hidden="true"></a> <span class="kw">then</span> (<span class="fu">fst</span> pnt, <span class="fu">snd</span> pnt <span class="op">+</span> speedY gs)</span>
+<span id="cb20-38"><a href="#cb20-38" aria-hidden="true"></a><span class="kw">else</span> pnt</span></code></pre></div>
+<p><code>incSprite</code> increases the <code>spriteCount</code> by one, if not 6 (5 since we begin a 0 and have 6 sprites for each direction).</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true"></a><span class="ot">incSprite ::</span> <span class="dt">GameState</span> <span class="ot">-&gt;</span> <span class="dt">Int</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true"></a>incSprite gs <span class="ot">=</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true"></a> <span class="kw">if</span> direction gs <span class="op">/=</span> <span class="dt">None</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true"></a> <span class="kw">then</span> <span class="kw">if</span> spriteCount gs <span class="op">==</span> <span class="dv">5</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true"></a> <span class="kw">then</span> <span class="dv">0</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true"></a> <span class="kw">else</span> spriteCount gs <span class="op">+</span> <span class="dv">1</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true"></a><span class="kw">else</span> spriteCount gs</span></code></pre></div>
+<p>If the player is at a <code>Cell</code> holding food I filter out this element, implicitly making the list of <code>Level</code> one element shorter. If continued from ‘demo’ to ‘real’ game we would most likely increase the score at this point.</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true"></a><span class="ot">checkFood ::</span> <span class="dt">GameState</span> <span class="ot">-&gt;</span> <span class="dt">Level</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true"></a>checkFood gs <span class="ot">=</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true"></a> <span class="fu">filter</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true"></a> (\cell <span class="ot">-&gt;</span> <span class="fu">not</span> (isHit (<span class="fu">fst</span> cell) (position gs) <span class="op">&amp;&amp;</span> <span class="fu">snd</span> cell <span class="op">==</span> <span class="ch">&#39;%&#39;</span>))</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true"></a> (currentLevel gs)</span></code></pre></div>
+<p>Now we have the beginning of a game.</p>
+<p><a href="https://bergsans.net/">Back to Archive</a></p>
+</body>
+</html>
