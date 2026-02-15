@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://bergsans.github.io/sitemap.xml
