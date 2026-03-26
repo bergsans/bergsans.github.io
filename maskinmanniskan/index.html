@@ -54,6 +54,7 @@ CSS rules to specify families
   <path d="m11.596 8.697-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393z"/>
 </svg> LYSSNA (10:50)
     </h2>
+    <p>Novellen "Maskinmänniskan" finns med i antologin Maskinblod 2 (Affront förlag 2014).</p>
     <p>Text, inläsning och bild av Claes-Magnus Berg.</p>
   </div>
   <script>
@@ -62,16 +63,6 @@ CSS rules to specify families
     playBtn.addEventListener('click', () => {
       shortStory.play();
     });
-    fetch(
-      `https://b6m38uucje.execute-api.eu-central-1.amazonaws.com/dev/api/new-visit?url=${window.location.href}`,
-      {
-        method: 'GET',
-        mode: 'cors',
-      }
-    )
-    .then(r => r.json())
-    .then(console.log)
-    .catch(console.log);
   </script>
 </body>
 </html>
