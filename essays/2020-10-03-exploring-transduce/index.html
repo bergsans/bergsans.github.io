@@ -334,11 +334,11 @@ if (window.hljs) {
 
 <p>How much do optimizations matter in functional programming? At least in what I&#39;m looking at here, very little if not data sets are large. As long as we don&#39;t use naive solutions, optimization seems trivial. And no matter what we do in a language such as JavaScript, the solutions of functional programming will never come close to the efficiency of an imperative solution.</p>
 <p>On the other hand, efficiency is not why people use functional programming. People use functional programming to obtain safe results (fewer bugs) and clarity.</p>
-<p>Wanting to learn about optimizations in JavaScript functional programming "style", I am currently interested in transduce. In this context I wanted to explore differences in efficiency between different solutions.>
-<p>I&#39;ve made a <a href="https://github.com/bergsans/transduce-example">simple microbenchmark</a> of a condensed, &#39;hipsteresque&#39; solution of a problem, a solution that&#39;s more optimized, a solution using standard, &#39;vanilla&#39; JavaScript methods, and one using the <a href="https://www.youtube.com/watch?v=6mTbuzafcII">Rich Hickeys notion of a tranduce</a>. I&#39;ve added an imperative solution for comparison.</p>
+<p>Wanting to learn about optimizations in JavaScript functional programming "style", I am currently interested in transduce. In this context I wanted to explore differences in efficiency between different solutions.</p>
+<p>I&#39;ve made a <a href="https://github.com/bergsans/transduce-example">simple microbenchmark</a> of a condensed, &#39;hipsteresque&#39; solution of a problem, a solution that&#39;s more optimized, a solution using standard, &#39;vanilla&#39; JavaScript methods, and one using the <a href="https://www.youtube.com/watch?v=6mTbuzafcII">Rich Hickey's notion of a transduce</a>. I&#39;ve added an imperative solution for comparison.</p>
 <p>For a good introduction to transduce read <a href="https://raganwald.com/2017/04/30/transducers.html">Reginald Braithwaite&#39;s thoughts about transducers in JavaScript</a> and Eric Elliot&#39;s <a href="https://medium.com/javascript-scene/transducers-efficient-data-processing-pipelines-in-javascript-7985330fe73d">Transducers: Efficient Data Processing Pipelines in JavaScript</a>.</p>
 <p>Intuitively, I thought the differences between a fairly good functional solution using some kind of chained composition and transducers would be greater. Only in large data sets, the difference appears and the difference is - I think - quite trivial.</p>
-<p><code>map</code>, <code>filter</code> &amp; <code>reduce</code> of the Array prototype in JavaScript are very useful. But they are not very aligned with functional programming. If you rewrite those methods in a hipsteresque fashion, taking full advantage of the expressiveness of JavaScript, you end up with neat, quite condensed code, fit for partial application and compostions.</p>
+<p><code>map</code>, <code>filter</code> &amp; <code>reduce</code> of the Array prototype in JavaScript are very useful. But they are not very aligned with functional programming. If you rewrite those methods in a hipsteresque fashion, taking full advantage of the expressiveness of JavaScript, you end up with neat, quite condensed code, fit for partial application and compositions.</p>
 <pre class="javascript"><code>const map = (fn) =&gt; (xs) =&gt; xs.reduce((acc, x) =&gt; [...acc, fn(x)], []);
 
 const filter = (predicate) =&gt; (xs) =&gt; xs.reduce(
@@ -357,7 +357,7 @@ const fold = (fn, initial) =&gt; (x) =&gt; {
     : fn(initial, head);
 };</code></pre>
 <p>However, performing operations, using such neat implementations, on even small collections (arrays) are inefficient and often end up with stack overflow.</p>
-<p>This is why it&#39;s important to respect the fact that JavaScript not is a pure language in terms of functional programming, even though it&#39;s possible to use a functional programming "style".</p>
+<p>This is why it&#39;s important to respect the fact that JavaScript is not a pure language in terms of functional programming, even though it&#39;s possible to use a functional programming "style".</p>
 <p>If we instead make the implementations in themselves less functional, we can reduce issues while still using a functional style in a meaningful manner. What&#39;s important is values &#39;eventually becoming immutable&#39;, purity &#39;around&#39; and &#39;between&#39; functions - not purity inside functions.</p>
 <p>To avoid stack overflow and inefficiency, these implementations use the principle of &#39;eventually becoming immutable&#39;.</p>
 <pre class="javascript"><code>const mapFast = (fn) =&gt; (xs) =&gt; {
@@ -382,7 +382,7 @@ const foldFast = (fn, initial) =&gt; (xs) =&gt; {
   }
   return initial;
 };</code></pre>
-<p>I&#39;ve also made use some helpers,</p>
+<p>I&#39;ve also made use of some helpers,</p>
 <pre class="javascript"><code>const compose = (...fns) =&gt; fns.reduceRight(
   (f, g) =&gt; (...args) =&gt; g(f(...args))
 );
@@ -399,9 +399,9 @@ const add = (x, y) =&gt; x + y;
 const add1 = (x) =&gt; x + 1;
 const multBy10 = (x) =&gt; x * 10;</code></pre>
 <p>When &#39;composed&#39;, the hipsteresque implementations are slow and go stack overflow.</p>
-<p>The implementations written in a more sensible fashion are not only faster but also doesn&#39;t crash. The solution with best performance is the tranduce composition (and even better performance with the imperative solution).</p>
-<p>By separating the data from the function application, a central thought-figure in functional programming becomes visible - namely that (which also is visible in the &#39;hipsteresque&#39; verions) <code>map</code> and <code>filter</code> are mere &#39;versions&#39; of <code>reduce</code>. And if we make them share signature, we can fold the functions (apply them) together, iterate a collection once.</p>
-<p>If not, between every transformation an intermediate collection will be recreated. For each <code>map</code>, <code>filter</code> and so on, a new iteration of the collection takes place. The black magic of transduce is to acknowledge the transformations as folds, recieving and applying a reducer.</p>
+<p>The implementations written in a more sensible fashion are not only faster but also don&#39;t crash. The solution with best performance is the transduce composition (and even better performance with the imperative solution).</p>
+<p>By separating the data from the function application, a central thought-figure in functional programming becomes visible - namely that (which also is visible in the &#39;hipsteresque&#39; versions) <code>map</code> and <code>filter</code> are mere &#39;versions&#39; of <code>reduce</code>. And if we make them share signature, we can fold the functions (apply them) together, iterate a collection once.</p>
+<p>If not, between every transformation an intermediate collection will be recreated. For each <code>map</code>, <code>filter</code> and so on, a new iteration of the collection takes place. The black magic of transduce is to acknowledge the transformations as folds, receiving and applying a reducer.</p>
 <pre class="javascript"><code>const rMap = (fn) =&gt; (reducer) =&gt; (acc, x) =&gt; reducer(acc, fn(x));
 const rFilter = (predicate) =&gt; (reducer) =&gt; (acc, x) =&gt; (
   predicate(x)
@@ -413,7 +413,7 @@ const concat = (acc, x) =&gt; {
   acc.push(x);
   return acc;
 };</code></pre>
-<p>This allow us, like in the microbenchmark, itterate once, if the data type is the same. With transduce you apply a set of transformations to a value, iterate and inject the transformed value in the collection using the provided &#39;joiner&#39;.</p>
+<p>This allows us, like in the microbenchmark, iterate once, if the data type is the same. With transduce you apply a set of transformations to a value, iterate and inject the transformed value in the collection using the provided &#39;joiner&#39;.</p>
 <pre class="javascript"><code>const transduced = composeFast(
   rFilter(isEven),
   rMap(multBy10),
@@ -422,7 +422,7 @@ const result = composeFast(
   foldFast(add, 0),
   transduced,
 )(data);</code></pre>
-<p>An imperative solution clearly have the upperhand with regard to efficiency. The main problem with this solution is not impurity but that it&#39;s not &#39;composable&#39;. Arguable, in a real situation, perhaps we still should prefer to isolate heavy operations in a box like this since the difference in performance - given other operations - could &#39;add up&#39;? But this is beside the point in this context.</p>
+<p>An imperative solution clearly has the upperhand with regard to efficiency. The main problem with this solution is not impurity but that it&#39;s not &#39;composable&#39;. Arguably, in a real situation, perhaps we still should prefer to isolate heavy operations in a box like this since the difference in performance - given other operations - could &#39;add up&#39;? But this is beside the point in this context.</p>
 <pre class="javascript"><code>function imperativeSolution(data) {
   let result = 0;
   for (let i = 0; i &lt; data.length; i++) {
@@ -433,8 +433,8 @@ const result = composeFast(
   }
   return result;
 }</code></pre>
-<p>This microbenchmark is flawed as the results depends on the machine, the OS and available resources. The same &#39;run&#39; will differ slightly depending on the current &#39;situation&#39;. Still, the results roughly indicate a tendency. The imperative solution is always much more efficient as other solutions, and so on.</p>
-<p>This are the result of my laptop computer of an array of increasing size (a set of integers increasing from 0 ..), running the same composed functions. Here I only compare a &#39;start&#39; and &#39;end&#39; (Unix) timestamp. I only run the hipsteresque implementations up to 10.000 elements (after this these implementations lead to stack overflow).</p>
+<p>This microbenchmark is flawed as the results depend on the machine, the OS and available resources. The same &#39;run&#39; will differ slightly depending on the current &#39;situation&#39;. Still, the results roughly indicate a tendency. The imperative solution is always much more efficient than other solutions, and so on.</p>
+<p>These are the results of my laptop computer of an array of increasing size (a set of integers increasing from 0 ..), running the same composed functions. Here I only compare a &#39;start&#39; and &#39;end&#39; (Unix) timestamp. I only run the hipsteresque implementations up to 10.000 elements (after this these implementations lead to stack overflow).</p>
 <pre class="javascript"><code>function microBenchmark(size, label, fn) {
   console.log(label);
   const startStamp = new Date().getTime();
@@ -633,8 +633,8 @@ Size vs. Time (ms)
 </tr>
 </tbody>
 </table>
-<p>What we can safely conclude is that the hipsteresque implementation is problematic. We can use it for sets larger than 1000 elements without facing stack overflow. Also, even with small sets it&#39;s an inefficient solution. We know that the imperative solution always will be the fastest.</p>
-<p>When comparing efficiency between the remaining three &#39;fuctional&#39; solutions, the set must include 1 million or more elements for it to be relevant. With the regard to functional programming we can also arguable claim that the standard, &#39;vanilla&#39; solution is problematic.</p>
+<p>What we can safely conclude is that the hipsteresque implementation is problematic. We cannot use it for sets larger than 1000 elements without facing stack overflow. Also, even with small sets it&#39;s an inefficient solution. We know that the imperative solution always will be the fastest.</p>
+<p>When comparing efficiency between the remaining three &#39;functional&#39; solutions, the set must include 1 million or more elements for it to be relevant. With the regard to functional programming we can also arguably claim that the standard, &#39;vanilla&#39; solution is problematic.</p>
 <p>Full project available <a href="https://github.com/bergsans/transduce-example">at GitHub</a></p>
 
 

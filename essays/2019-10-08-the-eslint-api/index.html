@@ -599,12 +599,12 @@ console.log(`2 + 2 = ${addNums(2, 2)}`);
       — are contingent. One would hope though, that the transpiler would make
       use of an explanatory naming system, something that’s the case with
       Esprima (and Acorn, another quite famous AST-ifier) who follows the
-      suggestion of the project ESTree,, a standardization project.
+      suggestion of the project ESTree, a standardization project.
     </p>
     <p>
-      These kind of abstractions are useful to the compiler, enabling a way to
+      These kinds of abstractions are useful to the compiler, enabling a way to
       translate from one language to another. Esprima, following ESTree, would
-      articulate a AST for a function with this kind of terminology:
+      articulate an AST for a function with this kind of terminology:
     </p>
     <pre class="javascript"><code>{
   &quot;type&quot;: &quot;FunctionDeclaration&quot;,
@@ -620,9 +620,9 @@ console.log(`2 + 2 = ${addNums(2, 2)}`);
     <p>
       As you can see, an AST much resembles any JSON object with data.
       Everything has a key and value, and a value can also be another key
-      holding other values. Practice
+      holding other values.
     </p>
-    <p>In this example we will make us of the following dependencies.</p>
+    <p>In this example we will make use of the following dependencies.</p>
     <ul>
       <li>eslint</li>
       <li>eslint-plugin-local</li>
@@ -630,11 +630,11 @@ console.log(`2 + 2 = ${addNums(2, 2)}`);
       <li>mocha</li>
     </ul>
     <p>
-      Chai and Mocha is for testing. eslint-plugin-local makes it possible to
-      easy have a local setup (no need for package.json configs or pushing to
+      Chai and Mocha are for testing. eslint-plugin-local makes it possible to
+      easily have a local setup (no need for package.json configs or pushing to
       NPM).
     </p>
-    <p>First of, let&#39;s add our rule to the .eslintrc</p>
+    <p>First off, let&#39;s add our rule to the .eslintrc</p>
     <pre class="javascript"><code>rules: {
   &#39;local/replace-console-log-with-the-logger&#39;: &#39;error&#39;
 }</code></pre>
@@ -649,7 +649,7 @@ console.log(`2 + 2 = ${addNums(2, 2)}`);
 const {RuleTester} = require(&#39;eslint&#39;);
 const ruleTester = new RuleTester();</code></pre>
     <p>
-      Now we make us of the ruleTester. We specify the id of the rule and the
+      Now we make use of the ruleTester. We specify the id of the rule and the
       rule. We give an example of valid code as well as invalid. Important is
       that we want to test the output of applying the fix.
     </p>
@@ -676,7 +676,7 @@ const ruleTester = new RuleTester();</code></pre>
   node.callee.object.name === &#39;console&#39; &amp;&amp;
   node.callee.property.name === &#39;log&#39;;</code></pre>
     <p>
-      After examing a common console.log snippet we can easily identify its
+      After examining a common console.log snippet we can easily identify its
       different parts. This function merely checks if the node at hand fulfills
       the terms we state.
     </p>

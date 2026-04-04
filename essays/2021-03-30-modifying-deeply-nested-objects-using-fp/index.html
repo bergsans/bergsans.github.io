@@ -386,7 +386,7 @@ console.log(JSON.stringify(setC(5, someObject), null, 2));
 //    &quot;d&quot;: 3
 //  }
 //}</code></pre>
-<p>This following solution would be just as immutable as the previous one, but much cleaner. Using currying, we get generic functionality (if needed you could curry the last remaining parameters as well) supporting partial application,</p>
+<p>The following solution would be just as immutable as the previous one, but much cleaner. Using currying, we get generic functionality (if needed you could curry the last remaining parameters as well) supporting partial application,</p>
 <pre class="javascript"><code>const deepSet = (path) =&gt; (v, obj) =&gt; {  
   const setValue = ([head, ...tail], o) =&gt; tail.length
     ? {

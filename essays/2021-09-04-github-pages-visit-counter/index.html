@@ -332,10 +332,10 @@ if (window.hljs) {
 
 
 
-<p>You cannot get statistics such as visit count on GitHub Pages without a third-party solution, an external server/service. I wanted a rudimentary visit counter - not storing unnecessary or semiprivate data about the visitor such OS, etc., only visits and made a solution using an AWS serverless lambda storing data in a DynamoDB table. The solution is not specific to GitHub Pages, and could be used with any hosting that doesn’t allow you access to the server.</p>
+<p>You cannot get statistics such as visit count on GitHub Pages without a third-party solution, an external server/service. I wanted a rudimentary visit counter - not storing unnecessary or semiprivate data about the visitor such as OS, etc., only visits - and made a solution using an AWS serverless lambda storing data in a DynamoDB table. The solution is not specific to GitHub Pages, and could be used with any hosting that doesn’t allow you access to the server.</p>
 <p><a href="https://github.com/bergsans/github-pages-aws-visit-counter">My solution</a> saves visits this month (on which page), all-time(on which page), and the total number of visits. The data is presented in text format, either in the browser or using curl (or some other tool).</p>
 <p>If someone would want to use it with AWS, change the value of <code>GITHUB_PAGES_URL</code> in <code>src/functions/new-visit/handler.ts</code> to your site, and add a GET-request to <code>https://{GENERATED_AWS_URL}/dev/api/new-visit?url=${window.location.url}</code>. View statistics from <code>{GENERATED_AWS_URL}/dev/api/get-visits</code>.</p>
-<p>Data is presented in text but could you easily either go from this data or change the code to present in using a HTML table. This is how it can look:</p>
+<p>Data is presented in text but you could easily either work from this data or change the code to present it using an HTML table. This is how it can look:</p>
 <pre><code>$ curl {GENERATED_AWS_URL}/dev/api/get-visits
 
 

@@ -565,7 +565,7 @@
     <div id="tokenize" class="section level1">
       <h1>Tokenize</h1>
       <p>
-        Every interpreter begins by a stream of characters, a string. I will
+        Every interpreter begins with a stream of characters, a string. I will
         refer to this as input.
       </p>
       <p>
@@ -723,8 +723,8 @@ function identifyType(token) {
         operations and some basic helpers. We could easily expand the standard
         library to include functions like <code>map</code>, <code>filter</code>,
         <code>reduce</code> and so on, but my feeling was that I would
-        understand what I am doing better by not creating too many a
-        distraction.
+        understand what I am doing better by not creating too many
+        distractions.
       </p>
       <pre class="javascript"><code>// Evaluate
 const HEAD = 0;
@@ -757,10 +757,10 @@ const standard_library = {
         lambda together with define. However, there are other possible uses.
       </p>
       <p>
-        Since we may use the lambda (this also is true for define) we want to
+        Since we may use the lambda (this is also true for define) we want to
         save the context, the scope as well as information on the parent scope.
         Therefore we need a small helper that manages the environment and
-        it&#39;s state in the children-parent relationship. At root, there is no
+        its state in the children-parent relationship. At root, there is no
         parent.
       </p>
       <pre class="javascript"><code>function env(scope, parent) {
@@ -854,7 +854,7 @@ return evaluate(expression, context);
   if (input === undefined) {
     return;</code></pre>
       <p>
-        If the input is a list (an array) we handle this separate. Lisp has
+        If the input is a list (an array) we handle this separately. Lisp has
         special forms. This interpreter has only four forms:
         <code>define</code>, <code>lambda</code>, <code>if</code> and
         <code>quote</code>. A special form is called with the input and the
@@ -875,7 +875,7 @@ return evaluate(expression, context);
         const [fn, ...list] = evaluatedList;
         return fn(...list);</code></pre>
       <p>
-        If no function occupy the head, the list is returned as it is. Since
+        If no function occupies the head, the list is returned as it is. Since
         we&#39;ve already evaluated the list we know that the list contains no
         subexpressions to be evaluated. In Lisp action - the application of a
         &#39;function&#39;, a manipulation of data - is always left-aligned in
@@ -914,9 +914,9 @@ i   nput.type === &#39;boolean&#39;
   }
 }</code></pre>
       <p>
-        The easiest way to get a sense of the limits of this Lisp intepreter is
+        The easiest way to get a sense of the limits of this Lisp interpreter is
         to look at the tests of the JavaScript solution.
-      </p>
+</p>
       <p>Some random examples demonstrated by the tests:</p>
       <pre><code>(+ 1 2 3 (- 10 6))
 =&gt; 10

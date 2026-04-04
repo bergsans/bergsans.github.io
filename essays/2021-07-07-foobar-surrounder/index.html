@@ -333,8 +333,8 @@ if (window.hljs) {
 
 
 <p>Since I don’t use functional programming at work, I tend to have an “aesthetic” style when writing JavaScript functional style. Performance has never been an issue in my small, JavaScript hobby projects so far.</p>
-<p>To remind me that functional programming using JavaScript often produce poor performance if you don’t make performance a parameter to consider, <a href="https://github.com/bergsans/word-count-experiment">I made two versions of the same problem</a>: surrounding the most frequent word in a text with ‘foo’ and ‘bar’.</p>
-<p>Both solutions could be improved, but in relative terms I find my functional solution more elegant. But the performance is quite bad. I've exluded <code>loremIpsum</code>, a very long string (92208 words) containing the 'lorem ipsum'-text.</p>
+<p>To remind me that functional programming using JavaScript often produces poor performance if you don’t make performance a parameter to consider, <a href="https://github.com/bergsans/word-count-experiment">I made two versions of the same problem</a>: surrounding the most frequent word in a text with ‘foo’ and ‘bar’.</p>
+<p>Both solutions could be improved, but in relative terms I find my functional solution more elegant. But the performance is quite bad. I've excluded <code>loremIpsum</code>, a very long string (92208 words) containing the 'lorem ipsum'-text.</p>
 <div id="functional-style" class="section level1">
 <h1>Functional style</h1>
 <pre class="javascript"><code>const loremIpsum = require("./lorem-ipsum.js");

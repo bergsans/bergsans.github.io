@@ -333,8 +333,8 @@ if (window.hljs) {
 
 <p>Although I believe we often today navigate an asynchronous environment by forcing it to behave synchronously - kind of like stating “the worse for the facts” when a theory is proved flawed - it’s valuable to be able to create sequentially called (potentially) asynchronous functions.</p>
 <p>As a step in understanding this process better, I’ve played with different ways of solving this problem. I wanted a logic handling latency between nodes in a sequence of function calls, a few synchronous (normalization, etc.), and some asynchronous (HTTP, DB requests, etc.). I also wanted to resolve  a situation in which some steps require previous ones.</p>
-<p>I made two variants of the same function. One allowing you the chain functions, and an implementation of ‘compose’ - both permitting asynchronous calls.</p>
-<p>This my expected output, aiming to in mock something close-enough a real scenario.</p>
+<p>I made two variants of the same function. One allowing you to chain functions, and an implementation of ‘compose’ - both permitting asynchronous calls.</p>
+<p>This is my expected output, aiming to mock something close-enough a real scenario.</p>
 <pre><code>[ 1, 2, 3 ]       → initial value
 [ 2, 4, 6 ]       → doubled 
 [ 3, 5, 7 ]       → 2s later, increased by one

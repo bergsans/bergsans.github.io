@@ -331,8 +331,8 @@ if (window.hljs) {
 
 
 
-<p>Data arriving later (latency) is business as usual in a world entangled in API calls, database requests, and applications present Online rather than on our machines. In some respects, this has consequences for - or should have - how one write code.</p>
-<p>In a synchronous universe the notion of ‘memoization’ make sense. Depending on how advanced a calculation is, memoization potentially saves the day and has been elevated to the JavaScript mainstream by React. But in reality, memoization is limited and especially so in a cloud computing environment such as AWS Lambda because of its short live span.</p>
+<p>Data arriving later (latency) is business as usual in a world entangled in API calls, database requests, and applications present online rather than on our machines. In some respects, this has consequences for - or should have - how one writes code.</p>
+<p>In a synchronous universe the notion of ‘memoization’ makes sense. Depending on how advanced a calculation is, memoization potentially saves the day and has been elevated to the JavaScript mainstream by React. But in reality, memoization is limited and especially so in a cloud computing environment such as AWS Lambda because of its short lifespan.</p>
 <p>A simple, yet decently effective implementation of <code>memoize</code> could look something like this:</p>
 <pre class="javascript"><code>function memoize(fn) {
   const calculatedValues = new Map();
@@ -368,9 +368,9 @@ function sumRangeOneTo(n)  {
 <p>Every consecutive call to <code>memoizedSum(10000000)</code> would achieve the result using a look-up.</p>
 <p>However, since the <code>memoize</code> function uses an in-memory data structure it is not persistent and the computer running it eventually would have issues with the working memory.</p>
 <p>One possible solution would be to use a <code>memoization</code> technique using a persistent data structure, such as a database. I've made a solution for adding positive integers 1..n using an asynchronous logic, AWS lambda, and DynamoDB for persistence.</p>
-<p>For an advanced calculation, there is a breaking point using this solution. This property is shared with Workers and WebAssembly alike, ‘it must be worth it’. If one would use a small set, an asynchronous solution would be slower since it involves a database request. On the other hand, with an established break-point one could make a solution using two functions and some kind of heuristic. For small values, use the synchronous solution and for larger sets, use the asynchronous. But since this heuristic would have to be a result of experimentation and careful,  contextual deliberation. I’ve only made a proof of concept using my bad <code>sumRangeOneTo</code>.</p>
-<p>The full solution is available at <a href="https://github.com/bergsans/memoize-async/">GitHub</a>. If you'd want to try it follow the instructions present on GitHub. Because of how AWS DynamoDB payments works (however cheap), I don't want to host it publically.</p>
-<p>The present solution is not generic, but could easily be refactored to correlating a function name with a dynamically created DynamoDB table. I've added a few unnecessary lines of code to prettify the result.</p>
+<p>For an advanced calculation, there is a breaking point using this solution. This property is shared with Workers and WebAssembly alike, ‘it must be worth it’. If one would use a small set, an asynchronous solution would be slower since it involves a database request. On the other hand, with an established break-point one could make a solution using two functions and some kind of heuristic. For small values, use the synchronous solution and for larger sets, use the asynchronous. But since this heuristic would have to be a result of experimentation and careful, contextual deliberation, I’ve only made a proof of concept using my bad <code>sumRangeOneTo</code>.</p>
+<p>The full solution is available at <a href="https://github.com/bergsans/memoize-async/">GitHub</a>. If you'd want to try it follow the instructions present on GitHub. Because of how AWS DynamoDB payments works (however cheap), I don't want to host it publicly.</p>
+<p>The present solution is not generic, but could easily be refactored to correlate a function name with a dynamically created DynamoDB table. I've added a few unnecessary lines of code to prettify the result.</p>
 <pre class="javascript"><code>// handler.js
 
 &quot;use strict&quot;;

@@ -335,7 +335,7 @@ if (window.hljs) {
 <p>Instead of jumping to the ghci and typing <code>:r</code> (reload) when I’ve made changes and then exploring the data, I reload from Vim. If I don’t use ghcid or the language server finds an obvious error, the jumping may be unnecessary (if the type system complains). I use this line in my .vimrc for this behavior,</p>
 <pre class="bash"><code>autocmd BufReadPost,BufNewFile *.hs nnoremap &lt;leader&gt;r 
   :!tmux send-keys -t bottom-right &quot;:r&quot; Enter&lt;CR&gt;</code></pre>
-<p>I find this workflow productive - node.js should take more inspiration from Lispy languages and Haskells REPL - and wanted to have a similar setup for node.js.</p>
+<p>I find this workflow productive - node.js should take more inspiration from Lispy languages and Haskell's REPL - and wanted to have a similar setup for node.js.</p>
 <p>If you start the node REPL from the command-line <code>.clear</code> means <code>.break</code> which means that your command history persists. Therefore you cannot reload a file, since all initialized functions and variables are declared in the present history.</p>
 <p>However, if you start using <code>repl.start()</code> then <code>.clear</code> clears the context and thus you can reload a file. You can achieve this using <code>node -e &quot;repl.start()&quot;</code>. If you want to have a better solution you’d have to make an alias. Since you don’t want node to evaluate the expression if you want to evaluate a script, you must distinguish between calls using arguments and ones without,</p>
 <pre class="bash"><code>nodeExec()

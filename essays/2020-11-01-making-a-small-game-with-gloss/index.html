@@ -339,7 +339,7 @@ if (window.hljs) {
 </p>
 </div>
 <p>Perhaps because Haskell is not commonly used for graphics programming, there are only a few graphics libraries available. Making this game I settled with <a href="https://hackage.haskell.org/package/gloss">Gloss</a>.<label for="tufte-sn-1" class="margin-toggle sidenote-number">1</label><input type="checkbox" id="tufte-sn-1" class="margin-toggle"><span class="sidenote"><span class="sidenote-number">1</span> I&#39;ve found two other tutorials that may be of interest: Andrew Gibianski&#39;s <a href="https://andrew.gibiansky.com/blog/haskell/haskell-gloss/">Your First Haskell Application (with Gloss)</a> and <a href="https://mmhaskell.com/blog/2019/3/25/making-a-glossy-game-part-1">Making a Glossy Game!</a> on Monday Morning Haskell.</span></p>
-<p>I use Stack and begun by adding Gloss as a dependency to <code>stack.yaml</code>,</p>
+<p>I use Stack and began by adding Gloss as a dependency to <code>stack.yaml</code>,</p>
 <pre><code>extra-deps:
 - gloss-1.13.1.2</code></pre>
 <p>and added <code>gloss</code> (without a version number) to the <code>build-depends</code> of <code>library</code> and <code>executable</code>.</p>
@@ -405,8 +405,8 @@ data Heading
  = FacingWest
  | FacingEast
  deriving (Eq)</code></pre>
-<p><code>MoveDirection</code> is concerned wither the player moves West or East, or doesn’t move at all. I’ve not included a state for jumping to <code>MoveDirection</code> since I was unsure if this could be described as moving in the same sense.</p>
-<p><code>Heading</code> is for evaluating if the player is facing West or East. Unless you don’t move in the opposite direction, you keep facing a direction — even when you jump.</p>
+<p><code>MoveDirection</code> is concerned with whether the player moves West or East, or doesn’t move at all. I’ve not included a state for jumping to <code>MoveDirection</code> since I was unsure if this could be described as moving in the same sense.</p>
+<p><code>Heading</code> is for evaluating if the player is facing West or East. Unless you move in the opposite direction, you keep facing a direction — even when you jump.</p>
 <pre class="haskell"><code>data GameState =
  GameState
  { position :: Point
@@ -429,7 +429,7 @@ type Level= [Cell]</code></pre>
 prepareData rawData =
   concat [makeRow (rawData !! y) y | y &lt;- [0..length rawData -1]]</code></pre>
 <p><code>makeRow</code> takes a <code>String</code>, a row from the list of <code>[String]</code> passed to <code>prepareData</code>, and an <code>Int</code> — the row number — and returns a <code>Level</code> after the normalization.</p>
-<p>The <code>Level</code> only includes ‘actual’ tiles, that is walls and carrots (we don’t need to include the ‘background’). Since Gloss centers objects using Cartesian Coordinates, and describes a <code>Point</code> using <code>Float</code>, we transform the <code>Int</code> arising from the list comprehension, and fixates its view position on the window <code>display</code>Display<code>by multiplying the size of the tile minus half the width (for the x</code>Point`) and half the size of the tile.</p>
+<p>The <code>Level</code> only includes ‘actual’ tiles, that is walls and carrots (we don’t need to include the ‘background’). Since Gloss centers objects using Cartesian Coordinates, and describes a <code>Point</code> using <code>Float</code>, we transform the <code>Int</code> arising from the list comprehension, and fixates its view position on the window <code>Display</code> by multiplying the size of the tile minus half the width (for the x <code>Point</code>) and half the size of the tile.</p>
 <p>Similarly, I base y of <code>Point</code> on half the height of the window <code>Display</code> and again, half the tile size. I also inject the symbol to the second position of the tuple <code>Cell</code>.</p>
 <pre class="haskell"><code>makeRow :: String -&gt; Int -&gt; Level
 makeRow row y =
@@ -447,7 +447,7 @@ tileSize = 32.0</code></pre>
 <pre class="haskell"><code> , spriteCount :: Int
  , speedX :: Float
  , speedY :: Float</code></pre>
-<p><code>spriteCount</code> is increased by 1 whenever the player move West or East. The sprite I use has 6 images for moving, so when <code>spriteCount</code> reaches 6, I set it to 0. <code>speedX</code> and <code>speedY</code> is the moving speed of vertical and horizontal movement respectively, measured in ‘pixels’ (a value rounded when used).</p>
+<p><code>spriteCount</code> is increased by 1 whenever the player move West or East. The sprite I use has 6 images for moving, so when <code>spriteCount</code> reaches 6, I set it to 0. <code>speedX</code> and <code>speedY</code> are the moving speed of vertical and horizontal movement respectively, measured in ‘pixels’ (a value rounded when used).</p>
 <p>I use the <a href="https://hackage.haskell.org/package/gloss-1.13.1.2/docs/Graphics-Gloss.html#v:play"><code>Display</code> mode of <code>play</code></a>. The Gloss documentation describes its parameters as such:</p>
 <pre class="haskell"><code>play
 :: Display                   Display mode.
@@ -547,8 +547,8 @@ drawTile cell tileImg foodImg =
 isRight :: Heading -&gt; Int
 isRight FacingEast = 6
 isRight _ =0</code></pre>
-<p>The first two elements of the <code>[Picture]</code> list is the images for the wall and the carrot. I iterate the <code>Level</code> of the <code>GameState</code> using a list comprehension, passing individual cells together with two images referenced to <code>drawTile</code>.</p>
-<p>Depending on if the passed cells <code>cellType</code> value, determined in <code>whatImg</code>, I render a wall or a carrot at the position of the <code>Point</code> of the cell.</p>
+<p>The first two elements of the <code>[Picture]</code> list are the images for the wall and the carrot. I iterate the <code>Level</code> of the <code>GameState</code> using a list comprehension, passing individual cells together with two images referenced to <code>drawTile</code>.</p>
+<p>Depending on the passed cell's <code>cellType</code> value, determined in <code>whatImg</code>, I render a wall or a carrot at the position of the <code>Point</code> of the cell.</p>
 <p>After drawing the ‘background’, the level as such, the player is rendered at the <code>position</code> of the <code>GameState</code>. The <code>spriteCount</code> + 2 (I jump the wall and carrot in the list of images) added with the value of <code>isRight</code> determines what sprite is rendered. If the player is <code>FacingEast</code> I add 6, otherwise 0, since the list of images happens to include sprites for <code>FacingLeft</code> before <code>FacingEast</code>.</p>
 <p>Now I continue with the next parameter of <code>play</code>, the parameter for user input.</p>
 <pre class="haskell"><code>handleKeys :: Event -&gt; GameState -&gt; GameState
@@ -564,7 +564,7 @@ handleKeys (EventKey (SpecialKey KeySpace) Down _ _) gs =
  else (-6)
  }
 handleKeys _ gs = gs {direction =None}</code></pre>
-<p>Using pattern matching I determine between four possible states. If the user press the Left or Right arrow, the <code>GameState</code> record is updated with a new <code>MoveDirection</code> and <code>Heading</code>. If the user press space, I modify <code>speedY</code>, if the player is standing on firm ground. If no key is pressed, the <code>MoveDirection</code> is assigned to <code>None</code>.</p>
+<p>Using pattern matching I determine between four possible states. If the user presses the Left or Right arrow, the <code>GameState</code> record is updated with a new <code>MoveDirection</code> and <code>Heading</code>. If the user presses space, I modify <code>speedY</code>, if the player is standing on firm ground. If no key is pressed, the <code>MoveDirection</code> is assigned to <code>None</code>.</p>
 <p>In the last parameter of <code>play</code>, we make updates not relating to side-effects (such as user input in the parameter/function before).</p>
 <pre class="haskell"><code>update :: Float -&gt; GameState -&gt; GameState
 update _ gs =
@@ -644,7 +644,7 @@ moveY gs pnt =
  if not (isCollision gs (fst pnt, snd pnt + speedY gs) &#39;*&#39;)
  then (fst pnt, snd pnt + speedY gs)
 else pnt</code></pre>
-<p><code>incSprite</code> increases the <code>spriteCount</code> by one, if not 6 (5 since we begin a 0 and have 6 sprites for each direction).</p>
+<p><code>incSprite</code> increases the <code>spriteCount</code> by one, if not 6 (5 since we begin at 0 and have 6 sprites for each direction).</p>
 <pre class="haskell"><code>incSprite :: GameState -&gt; Int
 incSprite gs =
  if direction gs /= None

@@ -677,7 +677,7 @@ function emptyMap(
       <p>
         We will traverse the maze by ‘walking’ in different directions. We move
         from a visitable cell of the maze to another visitable cell. In doing
-        this, we ‘jump’ an unvisitable cell. As we move the wall between two
+        this, we ‘jump’ an unvisitable cell. As we move, the wall between two
         visitable cells will be ground. From the start, only the point of
         departure was of type floor. To walk means to connect visitable cells of
         type floor by removing walls by changing the type to floor.
@@ -826,7 +826,7 @@ function makeRandomMaze(w: number, h: number): IMaze {
 }</code></pre>
       <p>
         If no cells are visitable from the current position of the stack (the
-        last), we <code>pop</code> one element (and in the next iteration checks
+        last), we <code>pop</code> one element (and in the next iteration check
         if it has any visitable neighbors… until the end of the stack). We
         finish by returning our maze as well as its width and height.
       </p>

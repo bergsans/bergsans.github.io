@@ -332,7 +332,7 @@ if (window.hljs) {
 
 
 
-<p>JavaScript is sometimes accused of being bad with numbers. A common example is <code>&gt; 0.1 + 0.2</code> which evaluates to 0.30000000000000004. The result stems from how JavaScript deals with floating-point arithmetics, but people making the accusation often fails to mention that languages such as Java, Python, and Rust also evaluates this expression it to 0.30000000000000004, following the same standard for floating-point arithmetics (IEEE 754). In fact, when experimenting with various languages on repl.it only C/C++ produced correct results (but would fail with other floats).</p>
+<p>JavaScript is sometimes accused of being bad with numbers. A common example is <code>&gt; 0.1 + 0.2</code> which evaluates to 0.30000000000000004. The result stems from how JavaScript deals with floating-point arithmetics, but people making the accusation often fail to mention that languages such as Java, Python, and Rust also evaluate this expression to 0.30000000000000004, following the same standard for floating-point arithmetics (IEEE 754). In fact, when experimenting with various languages on repl.it only C/C++ produced correct results (but would fail with other floats).</p>
 <div id="large-numbers" class="section level1">
 <h1>Large numbers</h1>
 <p>Another point about JavaScript and numbers often raised is the size of large numbers. Out of the box, JavaScript cannot deal with numbers greater than, or smaller than, negative infinity (<code>Number.NEGATIVE_INFINITY</code>) and positive infinity (<code>Number.POSITIVE_INFINITY</code>). The max/min value of JavaScript can be obtained with <code>Number.MIN_VALUE</code> and <code>Number.MAX_VALUE</code> and are not very high (nor, respectively, very low). Therefore numbers in JavaScript can become a problem. Take this simplistic function producing factorials,</p>
@@ -355,12 +355,12 @@ if (window.hljs) {
 </div>
 <div id="floating-point-arithmetics" class="section level1">
 <h1>Floating-point arithmetics</h1>
-<p>Solving the issue with floating-point arithmetics is more complicated. One solution would be to do use <code>parseFloat</code>: <code>parseFloat((0.1 + 0.2).toFixed(2))</code> but this solution produces strange results.</p>
+<p>Solving the issue with floating-point arithmetics is more complicated. One solution would be to use <code>parseFloat</code>: <code>parseFloat((0.1 + 0.2).toFixed(2))</code> but this solution produces strange results.</p>
 <p>I have come across functions similar to this one suggested as a solution,</p>
 <pre  class="javascript"><code>function floatArithmetic(n) {
   return parseFloat(n.toFixed(2), 10);
 }</code></pre>
-<p>If one used it to add 0.1 with 0.2 we would obtain 0.3: <code>floatArithmetic(0.1 + 0.2)</code> . But since we fixate the precision beforehand, we get an errorneous result if we had inputted numbers with more than two decimals, <code>floatArithmetic(0.001 + 0.002)</code> (= 0.00).</p>
+<p>If one used it to add 0.1 with 0.2 we would obtain 0.3: <code>floatArithmetic(0.1 + 0.2)</code> . But since we fixate the precision beforehand, we get an erroneous result if we had inputted numbers with more than two decimals, <code>floatArithmetic(0.001 + 0.002)</code> (= 0.00).</p>
 <p>The main obstacle here is that if we pass 0.1 + 0.2 as an argument the expression will be evaluated eagerly (also called strict or greedy evaluation). A simple, possible solution would provide the operation as a string and use <code>eval</code> (using <code>eval</code> is considered bad practice ).</p>
 <pre  class="javascript"><code>const isFloat = (x) =&gt; x.includes(&quot;.&quot;);
 
@@ -378,7 +378,7 @@ function floatArithmetic(str) {
   }
   return eval(str);
 }</code></pre>
-<p>This would solve some problems: <code>0.001 + 002 = 0.003</code>. On the other hand, only on the assumption that one could provide operations represented as a string - a far-fetched assumption. Another possibility would be using more advanced solutions from libraries, but all come - as far as I know - with limitations.</p>
+<p>This would solve some problems: <code>0.001 + 0.002 = 0.003</code>. On the other hand, only on the assumption that one could provide operations represented as a string - a far-fetched assumption. Another possibility would be using more advanced solutions from libraries, but all come - as far as I know - with limitations.</p>
 </div>
 
 
